@@ -6,12 +6,12 @@ DROP TABLE IF EXISTS projects;
 
 CREATE TABLE projects (
   number INTEGER PRIMARY KEY AUTOINCREMENT,
-  idea TEXT NOT NULL,
+  idea TEXT,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   done TIMESTAMP,
   started_on TIMESTAMP,
   stopped_on TIMESTAMP,
-  continuous INT NOT NULL,
+  continuous INT,
   links TEXT,
   memoranda TEXT,
   last_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
