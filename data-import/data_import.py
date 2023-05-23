@@ -7,8 +7,8 @@
 import pandas as pd
 import sqlite3
 
-CSVFILE="projects.csv"
-SCHEMA="db_init.sql"
+CSVFILE = "projects.csv"
+SCHEMA = "db_init.sql"
 
 if __name__ == '__main__':
     csvdata = pd.read_csv(CSVFILE)
@@ -22,8 +22,9 @@ if __name__ == '__main__':
 
     # Load the data using executemany
     # It's in a dataframe, and we can discard the dataframe index as we don't need it
-    database.executemany("INSERT INTO projects VALUES(:number, :idea, :created, :done, :started_on, :stopped_on, :continuous, :links, :memoranda, :last_modified)",
-                         csvdata.itertuples(index=False))
+    database.executemany(
+        "INSERT INTO projects VALUES(:number, :idea, :created, :done, :started_on, :stopped_on, :continuous, :links, :memoranda, :last_modified)",
+        csvdata.itertuples(index=False))
     database.commit()
 
     database.close()
