@@ -1,0 +1,15 @@
+{% extends 'base.html.j2' %}
+
+{% block header %}
+  <h1 class="subhead">{% block title %}Project {{ project['number']}}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <div>
+   <h2>{{ project['idea'] }}</h2>
+  </div>
+  <div>
+    <h3>Notes</h3>
+    <p>{{ project['memoranda'] }}</p>
+  </div>
+{% endblock %}

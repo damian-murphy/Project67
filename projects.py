@@ -1,6 +1,7 @@
 # The Project File
 # (C) Damian Murphy. Original Projects.txt, 1995/1996-2003, previous organisers 1989-1993
 #
+import database
 
 from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -24,20 +25,32 @@ import os
 
 def start():
     """ This bit is the main control """
-    app = Flask(__name__)
+    app = Flask('projects')
 
-    bp = Blueprint("test", __name__)
+    with app.app_context():
+        database.init_app(app)
+
+    bp = Blueprint("test", 'projects')
 
     @app.route("/hello")
     def hello_world():
         return "<h1>Hello!</h1>"
 
+    @app.route("/")
+    def home():
+        return "<h1>Welcome to THINGS TO BE DONE!</h1>"
+
     @app.route("/list")
     def list():
-        p_file = open("PROJECTS.TXT.data.sql", "r")
-        projects = p_file.read()
-        print(projects)
-        return render_template("display.html.j2", projects=projects)
+        db = database.get_db()
+        projects = db.execute("select number,idea,created,done from projects order by number").fetchall()
+        return render_template("list.html.j2", projects=projects)
+
+    @app.route("/project/<num>")
+    def show_project(num):
+        db = database.get_db()
+        project = db.execute("select number,idea,created,done,memoranda from projects where number = ?", (num, )).fetchone()
+        return render_template("project.html.j2", project=project)
 
     return app
 

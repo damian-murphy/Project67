@@ -1,0 +1,56 @@
+html {
+
+    font-family: sans-serif;
+    background: #000000;
+    color: grey;
+}
+td > a {
+    color: grey;
+}
+
+plink:hover {
+    background: grey;
+    color: black;
+}
+
+a:link {
+    color: orange;
+}
+
+a:visited {
+    color: orange;
+}
+
+a:hover {
+    color: black;
+    background: orange;
+}
+
+.head {
+    border: 10px solid;
+    border-color: grey;
+    border-radius: 15px;
+    padding: 5px;
+}
+
+.subhead {
+    border: 5px solid;
+    border-radius: 15px;
+    padding: 5px;
+}
+
+.menu {
+    align: left;
+    border: 2px solid;
+    border-radius: 15px;
+    padding: 5px;
+}
+
+table, th, td {
+    border: 1px solid;
+    padding: 2px;
+}
+
+table {
+    border-collapse: collapse;
+}

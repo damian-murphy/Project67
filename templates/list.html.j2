@@ -1,0 +1,29 @@
+{% extends 'base.html.j2' %}
+
+{% block header %}
+  <h1 class="subhead">{% block title %}All Projects{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <table>
+  <th>Num.</th>
+  <th>Idea</th>
+  <th>Created</th>
+  <th>Completed</th>
+  </th>
+  {% for project in projects %}
+      <tr>
+         <td>{{ project['number'] }}</td>
+         <td><a class="plink" href="/project/{{ project['number'] }}">{{ project['idea'] }}</a></td>
+         <td>{{ project['created'] }}</td>
+         {% if not project['done'] %}
+         <td>Not yet</td>
+         {% else %}
+         <td>{{ project['done'] }}</td>
+         {% endif %}
+      </tr>
+    {% if not loop.last %}
+    {% endif %}
+  {% endfor %}
+  </table>
+{% endblock %}
