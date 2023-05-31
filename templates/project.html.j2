@@ -1,15 +1,31 @@
 {% extends 'base.html.j2' %}
 
 {% block header %}
-  <h1 class="subhead">{% block title %}Project {{ project['number']}}{% endblock %}</h1>
+  <h1 class="subhead">{% block title %}Project No.{{ project['number']}}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
   <div>
    <h2>{{ project['idea'] }}</h2>
-  </div>
+   <p>Created: {{ project['created'] }}</p>
+   <p>Neverending Story: {{ project['continuous'] }}</p>
+   <p>Started On: {{ project['started_on'] }}</p>
+   <p>Stopped On: {{ project['stopped_on'] }}</p>
+   {% if not project['done'] %}
+   <p>Not done yet</p>
+   {% else %}
+   <p>I did it! Woo!<p>
+   {% endif %}
+   </div>
   <div>
     <h3>Notes</h3>
     <p>{{ project['memoranda'] }}</p>
+  </div>
+  <div>
+    <h3>Links</h3>
+    <p>{{ project['links'] }}</p>
+  </div>
+  <div>
+    <p>Last Updated on {{ project['last_modified'] }}</p>
   </div>
 {% endblock %}

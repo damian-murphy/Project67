@@ -1,0 +1,15 @@
+{% extends 'base.html.j2' %}
+
+{% block header %}
+  <h1>{% block title %}Edit Project No."{{ project['number'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="idea">Idea</label>
+    <input name="idea" id="idea" value="{{ request.form['idea'] or project['idea'] }}" required>
+    <label for="memoranda">Memoranda</label>
+    <textarea name="memoranda" id="body">{{ request.form['memoranda'] or project['memoranda'] }}</textarea>
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}

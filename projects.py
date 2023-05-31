@@ -49,8 +49,18 @@ def start():
     @app.route("/project/<num>")
     def show_project(num):
         db = database.get_db()
-        project = db.execute("select number,idea,created,done,memoranda from projects where number = ?", (num, )).fetchone()
+        project = db.execute("""select number,idea,created,done,memoranda,last_modified,
+                             started_on,stopped_on,continuous,links
+                             from projects where number = ?""", (num, )).fetchone()
         return render_template("project.html.j2", project=project)
+
+    @app.route("/project/<num>/edit")
+    def edit_project(num):
+        db = database.get_db()
+        project = db.execute("""select number,idea,created,done,memoranda,last_modified,
+                                 started_on,stopped_on,continuous,links
+                                 from projects where number = ?""", (num,)).fetchone()
+        return render_template("edit.html.j2", project=project)
 
     return app
 
