@@ -33,12 +33,12 @@ def start():
     bp = Blueprint("test", 'projects')
 
     @app.route("/hello")
-    def hello_world():
+    def hello():
         return "<h1>Hello!</h1>"
 
     @app.route("/")
     def home():
-        return "<h1>Welcome to THINGS TO BE DONE!</h1>"
+        return render_template("index.html.j2", title="Welcome")
 
     @app.route("/list")
     def list():
@@ -54,12 +54,32 @@ def start():
                              from projects where number = ?""", (num, )).fetchone()
         return render_template("project.html.j2", project=project)
 
-    @app.route("/project/<num>/edit")
+    @app.route("/project/<num>/edit", methods=("GET", "POST"))
     def edit_project(num):
         db = database.get_db()
         project = db.execute("""select number,idea,created,done,memoranda,last_modified,
                                  started_on,stopped_on,continuous,links
                                  from projects where number = ?""", (num,)).fetchone()
+
+        if request.method == "POST":
+            idea = request.form["Idea"]
+            memoranda = request.form["memoranda"]
+            error = None
+
+            if not idea:
+                error = "Idea is required."
+
+            if error is not None:
+                flash(error)
+            else:
+                db = get_db()
+                db.execute(
+                    "INSERT INTO post (idea, memoranda) VALUES (?, ?)",
+                    (idea, memoranda),
+                )
+                db.commit()
+                return redirect(url_for("blog.index"))
+
         return render_template("edit.html.j2", project=project)
 
     return app
