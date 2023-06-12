@@ -1,15 +1,29 @@
 {% extends 'base.html.j2' %}
 
 {% block header %}
-  <h1>{% block title %}Projects - "{{ title }}"{% endblock %}</h1>
+  <h1 class="subhead">{% block title %}Currently Active{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
   <div>
     <p>Some sort of ideas notepad
-  </div
-  <div>
-    <p>Furble</p>
   </div>
+  <div>
+    <p>Currently Active Projects:</p>
+    <table>
+  <th>Num.</th>
+  <th>Idea</th>
+  <th>Created</th>
+  <th>Started</th>
+  </th>
+  {% for project in projects %}
+      <tr>
+         <td>{{ project['number'] }}</td>
+         <td><a class="plink" href="/project/{{ project['number'] }}">{{ project['idea'] }}</a></td>
+         <td>{{ project['created'] }}</td>
+         <td>{{ project['started_on'] }}</td>
+      </tr>
+  {% endfor %}
+  </table>
 {% endblock %}
 

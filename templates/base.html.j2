@@ -1,12 +1,12 @@
 <!doctype html>
-<title>Projects - {% block title %}{% endblock %}</title>
+<title>The Projects File - {% block title %}{% endblock %}</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <nav>
-  <h1><a href="{{ url_for('home') }}">Projects</a></h1>
   <ul>
+    <li><a href="{{ url_for('home') }}">Currently Active</a>
     <li><a href="{{ url_for('list') }}">List All</a>
     <li><a href="{{ url_for('hello') }}">Hello</a>
-    {% if request.path ~ "/project/" %}
+    {% if project %}
     <li><a href="{{ url_for('edit_project', num=project['number']) }}">Edit</a>
     {% endif %}
   </ul>
