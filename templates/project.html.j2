@@ -5,27 +5,25 @@
 {% endblock %}
 
 {% block content %}
-  <div>
-   <h2>{{ project['idea'] }}</h2>
-   <p>Created: {{ project['created'] }}</p>
-   <p>Neverending Story: {{ project['continuous'] }}</p>
-   <p>Started On: {{ project['started_on'] }}</p>
-   <p>Stopped On: {{ project['stopped_on'] }}</p>
-   {% if not project['done'] %}
-   <p>Not done yet</p>
-   {% else %}
-   <p>Completed: {{ project['done'].strftime('%Y-%m-%d %HH:%MM:%ss') }}<p>
-   {% endif %}
-   </div>
-  <div>
-    <h3>Notes</h3>
-    <p>{{ project['memoranda'] }}</p>
-  </div>
-  <div>
-    <h3>Links</h3>
-    <p>{{ project['links'] }}</p>
-  </div>
-  <div>
-    <p>Last Updated on {{ project['last_modified'] }}</p>
+  <div class="row">
+    <div class="column">
+       <h2>{{ project['idea'] }}</h2>
+       <h3>Notes</h3>
+        <p>{{ project['memoranda'] }}</p>
+       <h3>Links</h3>
+        <p>{{ project['links'] }}</p>
+    </div>
+    <div class="column">
+       <p>Created: {{ project['created'] }}</p>
+       <p>Neverending Story: {{ project['continuous'] }}</p>
+       <p>Started On: {{ project['started_on'] }}</p>
+       <p>Stopped On: {{ project['stopped_on'] }}</p>
+       {% if not project['done'] %}
+       <p>Not done yet</p>
+       {% else %}
+       <p>Completed: {{ project['done'] }}<p>
+       {% endif %}
+       <p>Last Updated on {{ project['last_modified'] }}</p>
+    </div>
   </div>
 {% endblock %}

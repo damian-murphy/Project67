@@ -6,9 +6,7 @@
   <header>
     {% block header %}{% endblock %}
   </header>
-  <div>
   <nav class="navlink">
-    Navigation :
     <a href="{{ url_for('home') }}">Currently Active</a>
     <a href="{{ url_for('list') }}">List All</a>
     {% if project %}
