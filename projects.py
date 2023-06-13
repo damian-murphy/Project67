@@ -66,12 +66,10 @@ def start():
                                  from projects where number = ?""", (num,)).fetchone()
 
         if request.method == "POST":
-            idea = request.form["idea"]
-            memoranda = request.form["memoranda"]
-            created =
+
             error = None
 
-            if not idea:
+            if not request.form["idea"]:
                 error = "Idea is required."
 
             if error is not None:
@@ -79,9 +77,14 @@ def start():
             else:
                 db = database.get_db()
                 db.execute(
-                    """UPDATE projects SET idea = ?, memoranda = ?, created = ?, done = ?, last_modified = ?,
-                    started_on = ?, stopped_on = ?, continuous = ?, links = ? where number = ?;""",
-                    (idea, memoranda, created, num)
+                    """UPDATE projects SET idea = ?, memoranda = ?, created = ?, done = ?, 
+                    last_modified = ?, started_on = ?, stopped_on = ?, continuous = ?, 
+                    links = ? where number = ?;""",
+                    (request.form["idea"], request.form["memoranda"], request.form["created"],
+                     request.form["done"], request.form["last_modified"],
+                     request.form["started_on"],
+                     request.form["stopped_on"], request.form["continuous"],
+                     request.form["links"], num)
                 )
                 db.commit()
                 return redirect(url_for("show_project", num=num))

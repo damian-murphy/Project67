@@ -1,20 +1,21 @@
 <!doctype html>
 <title>The Projects File - {% block title %}{% endblock %}</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<nav>
-  <ul>
-    <li><a href="{{ url_for('home') }}">Currently Active</a>
-    <li><a href="{{ url_for('list') }}">List All</a>
-    <li><a href="{{ url_for('hello') }}">Hello</a>
-    {% if project %}
-    <li><a href="{{ url_for('edit_project', num=project['number']) }}">Edit</a>
-    {% endif %}
-  </ul>
-</nav>
+
 <section class="content">
   <header>
     {% block header %}{% endblock %}
   </header>
+  <div>
+  <nav class="navlink">
+    Navigation :
+    <a href="{{ url_for('home') }}">Currently Active</a>
+    <a href="{{ url_for('list') }}">List All</a>
+    {% if project %}
+    <a href="{{ url_for('edit_project', num=project['number']) }}">Edit</a>
+    {% endif %}
+</nav>
+</div>
   {% for message in get_flashed_messages() %}
     <div class="flash">{{ message }}</div>
   {% endfor %}

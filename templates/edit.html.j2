@@ -11,8 +11,7 @@
     <label for="created">Created</label>
     <input name="created" id="created" value="{{ request.form['created'] or project['created'] }}">
     <label for="done">Done</label>
-    <input name="done" id="done" type="radio" value="1" {% if project['done'] %} checked="true" {% endif %}>Yes</input>
-    <input name="done" id="done" type="radio" value="0" {% if not project['done'] %} checked="false" {% endif %}>No</input>
+    <input name="done" id="done" type="datetime-local" value="{{ request.form['done'] or project['done'] }}"></input>
     <label for="started_on">Started On</label>
     <input name="started_on" id="started_on" type="datetime-local" value="{{ request.form['started_on'] or project['started_on'] }}">
     <label for="stopped_on">Stopped On</label>
