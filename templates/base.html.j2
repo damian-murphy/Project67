@@ -14,8 +14,8 @@
     {% if project %}
     <a href="{{ url_for('edit_project', num=project['number']) }}">Edit</a>
     {% endif %}
-</nav>
-</div>
+   </nav>
+   </div>
   {% for message in get_flashed_messages() %}
     <div class="flash">{{ message }}</div>
   {% endfor %}

@@ -14,7 +14,7 @@
    {% if not project['done'] %}
    <p>Not done yet</p>
    {% else %}
-   <p>I did it! Woo!<p>
+   <p>Completed: {{ project['done'].strftime('%Y-%m-%d %HH:%MM:%ss') }}<p>
    {% endif %}
    </div>
   <div>
