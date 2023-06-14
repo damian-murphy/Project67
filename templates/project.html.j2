@@ -5,15 +5,15 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="column">
+  <div class="column">
+    <div class="colbox">
        <h2>{{ project['idea'] }}</h2>
        <h3>Notes</h3>
         <p>{{ project['memoranda'] }}</p>
        <h3>Links</h3>
         <p>{{ project['links'] }}</p>
     </div>
-    <div class="column">
+    <div class="colbox">
        <p>Created: {{ project['created'] }}</p>
        <p>Neverending Story: {{ project['continuous'] }}</p>
        <p>Started On: {{ project['started_on'] }}</p>

@@ -75,30 +75,29 @@ input {
 }
 
 /* Column layout 2-col */
-/* Create two un-equal columns that float next to each other */
+/* Create two columns that float next to each other */
 .column {
-  float: left;
+  display: flex;
+  flex-direction: row;
   padding: 10px;
+  flex-wrap: wrap;
+  align-content: space-between;
+  justify-content: center;
+  gap: 10px;
 }
 
-.column.left {
-  width: 60%;
+fieldset {
+    border: 0px;
+}
+.colbox {
+    padding: 5px;
+    border: 5px solid grey;
+    border-radius: 15px;
 }
 
-.column.right {
-  width: 40%;
-}
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-/* Responsive layout - makes the three columns stack on top of each other instead of next to each other on smaller screens (600px wide or less) */
-@media screen and (max-width: 600px) {
-  .column.left, .column.right {
-    width: 100%;
+/* Responsive layout - makes a one column layout instead of a two-column layout */
+@media (max-width: 800px) {
+  .flex-container {
+    flex-direction: column;
   }
 }
