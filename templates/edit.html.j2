@@ -15,9 +15,6 @@
     <textarea name="memoranda" id="memoranda">{{ request.form['memoranda'] or project['memoranda'] }}</textarea>
     <label for="links">Links</label>
     <textarea name="links" id="links" type="url" value="{{ request.form['links'] or project['links'] }}"></textarea>
-    <label for="last_modified">Last Modified</label>
-    <input name="last_modified" id="last_modified" type="datetime-local" value="{{ request.form['last_modified'] or project['last_modified'] }}">
-    <input type="submit" value="Save">
     </fieldset>
     </div>
     <div class="colbox">
@@ -33,6 +30,9 @@
         <label for="continuous">Continuous</label>
         <input name="continuous" id="continuous" type="radio" value="1" {% if project['continuous'] %} checked="true" {% endif %}>Yes</input>
         <input name="continuous" id="continuous" type="radio" value="0" {% if not project['continuous'] %} checked="false" {% endif %}>No</input>
+        <label for="last_modified">Last Modified</label>
+        <input name="last_modified" id="last_modified" type="datetime-local" value="{{ request.form['last_modified'] or project['last_modified'] }}">
+        <input type="submit" value="Save">
        </fieldset>
        </div>
       </div>
