@@ -41,14 +41,35 @@ def start():
         """ Main index page, also show a list of currently active projects for focus """
         db = database.get_db()
         projects = db.execute("""select number,idea,created,started_on from projects 
-                        where started_on is not NULL and done='0' order by started_on""").fetchall()
-        return render_template("index.html.j2", title="Welcome", projects=projects)
+                        where started_on is not NULL and ( done='0' or done is NULL )
+                         order by started_on""").fetchall()
+        return render_template("index.html.j2", title="Currently Active", projects=projects)
+
+    @app.route("/paused")
+    def paused():
+        """ Projects that have been stopped but not completed """
+        db = database.get_db()
+        projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects 
+                        where started_on is not NULL and stopped_on is not NULL 
+                        and done is NULL order by started_on""").fetchall()
+        return render_template("list.html.j2", title="Paused", projects=projects)
+
+    @app.route("/done")
+    def done():
+        """ Projects that have been completed """
+        db = database.get_db()
+        projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects 
+                        where done is NOT NULL order by started_on""").fetchall()
+        columns = ("number", "idea", "created", "started_on", "stopped_on", "done")
+        return render_template("list.html.j2", title="Completed", projects=projects,
+                               columns=columns)
 
     @app.route("/list")
     def list():
         db = database.get_db()
         projects = db.execute("select number,idea,created,done from projects order by number").fetchall()
-        return render_template("list.html.j2", title="List", projects=projects)
+        columns = ("number", "idea", "created", "done")
+        return render_template("list.html.j2", title="All", projects=projects, columns=columns)
 
     @app.route("/project/<num>")
     def show_project(num):

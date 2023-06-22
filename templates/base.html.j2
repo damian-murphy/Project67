@@ -8,6 +8,8 @@
   </header>
   <nav class="navlink">
     <a href="{{ url_for('home') }}">Currently Active</a>
+    <a href="{{ url_for('paused') }}">Paused</a>
+    <a href="{{ url_for('done') }}">Done</a>
     <a href="{{ url_for('list') }}">List All</a>
     {% if project %}
     <a href="{{ url_for('edit_project', num=project['number']) }}">Edit</a>

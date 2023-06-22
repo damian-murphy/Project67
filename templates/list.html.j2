@@ -1,27 +1,27 @@
 {% extends 'base.html.j2' %}
 
 {% block header %}
-  <h1 class="subhead">{% block title %}All Projects{% endblock %}</h1>
+  <h1 class="subhead">{% block title %}Projects: {{ title }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
 <div>
   <table>
-  <th>Num.</th>
-  <th>Idea</th>
-  <th>Created</th>
-  <th>Completed</th>
-  </th>
+  {% for column in columns %}
+  <th>{{ column }}</th>
+  {% endfor %}
+
   {% for project in projects %}
       <tr>
-         <td>{{ project['number'] }}</td>
+      {% for column in columns %}
+         {% if "idea" in column %}
          <td><a class="plink" href="/project/{{ project['number'] }}">{{ project['idea'] }}</a></td>
-         <td>{{ project['created'] }}</td>
-         {% if not project['done'] %}
-         <td>Not yet</td>
+         {% elif column in ['created', 'started_on', 'stopped_on', 'last_modified'] %}
+         <td>{{ project[column] }}</td>
          {% else %}
-         <td>{{ project['done'] }}</td>
+         <td>{{ project[column] }}</td>
          {% endif %}
+      {% endfor %}
       </tr>
     {% if not loop.last %}
     {% endif %}
