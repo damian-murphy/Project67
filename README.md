@@ -1,4 +1,4 @@
 # Project67
 The Projects File
 
-Ideas, suggestions and other products of an overactive mind
+A flask/python project to help me track my ideas, suggestions and other products of an overactive mind.
