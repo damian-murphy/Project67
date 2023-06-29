@@ -53,6 +53,7 @@ table, th, td {
 
 table {
     border-collapse: collapse;
+    margin: 10px 5px 5px 5px;
 }
 
 input {

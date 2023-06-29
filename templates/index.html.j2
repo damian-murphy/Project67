@@ -6,11 +6,15 @@
 
 {% block content %}
   <div>
-    <p>Some sort of ideas notepad</p>
+    <h2>Welcome to the Projects File.</h2>
+    <p>Somewhere to record life goals, ideas and things you'd like to do.</p>
   </div>
   <div>
-    <p>Currently Active Projects:</p>
-    <table>
+    <h2>This is what you are currently working on</h2>
+  {% if not projects %}
+  <h3>Nothing to see here! Try starting something...</h3>
+  {% else %}
+  <table>
   <th>Num.</th>
   <th>Idea</th>
   <th>Created</th>
@@ -25,5 +29,6 @@
       </tr>
   {% endfor %}
   </table>
+  {% endif %}
 {% endblock %}
 
