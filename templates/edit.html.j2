@@ -5,20 +5,34 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post">
-   <div class="column">
-    <div class="colbox">
-    <fieldset>
-    <label for="idea">Idea</label>
-    <input name="idea" id="idea" value="{{ request.form['idea'] or project['idea'] }}" required>
-    <label for="memoranda">Memoranda</label>
-    <textarea name="memoranda" id="memoranda">{{ request.form['memoranda'] or project['memoranda'] }}</textarea>
-    <label for="links">Links</label>
-    <textarea name="links" id="links" type="url" value="{{ request.form['links'] or project['links'] }}"></textarea>
-    </fieldset>
-    </div>
-    <div class="colbox">
-    <fieldset>
+  <div class="colbox column">
+    <form method="post">
+        <div class="row">
+            <div class="col-25">
+                <label for="idea">Idea</label>
+            </div>
+            <div class="col-75">
+                <input name="idea" id="idea" value="{{ request.form['idea'] or project['idea'] }}" required>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-25">
+                <label for="memoranda">Memoranda</label>
+            </div>
+            <div class="col-75">
+                <textarea name="memoranda" id="memoranda">{{ request.form['memoranda'] or project['memoranda'] }}</textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-25">
+                <label for="links">Links</label>
+            </div>
+            <div class="col-75">
+                <textarea name="links" id="links" type="url" value="{{ request.form['links'] or project['links'] }}"></textarea>
+            </div>
+        </div>
+    <div class="row">
+    <div class="colbox col-25">
      <label for="created">Created</label>
         <input name="created" id="created" value="{{ request.form['created'] or project['created'] }}">
         <label for="done">Done</label>
@@ -33,8 +47,8 @@
         <label for="last_modified">Last Modified</label>
         <input name="last_modified" id="last_modified" type="datetime-local" value="{{ request.form['last_modified'] or project['last_modified'] }}">
         <input type="submit" value="Save">
-       </fieldset>
        </div>
       </div>
+     </div>
   </form>
 {% endblock %}
