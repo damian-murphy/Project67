@@ -5,14 +5,14 @@
 {% endblock %}
 
 {% block content %}
-  <div class="colbox column">
+  <div class="colbox">
     <form method="post">
         <div class="row">
             <div class="col-25">
                 <label for="idea">Idea</label>
             </div>
             <div class="col-75">
-                <input name="idea" id="idea" value="{{ request.form['idea'] or project['idea'] }}" required>
+                <input type="text" name="idea" id="idea" value="{{ request.form['idea'] or project['idea'] }}" required>
             </div>
         </div>
         <div class="row">
@@ -28,27 +28,60 @@
                 <label for="links">Links</label>
             </div>
             <div class="col-75">
-                <textarea name="links" id="links" type="url" value="{{ request.form['links'] or project['links'] }}"></textarea>
+                <textarea name="links" id="links">{{ request.form['links'] or project['links'] }}</textarea>
             </div>
         </div>
-    <div class="row">
-    <div class="colbox col-25">
-     <label for="created">Created</label>
-        <input name="created" id="created" value="{{ request.form['created'] or project['created'] }}">
-        <label for="done">Done</label>
-        <input name="done" id="done" type="datetime-local" value="{{ request.form['done'] or project['done'] }}"></input>
-        <label for="started_on">Started On</label>
-        <input name="started_on" id="started_on" type="datetime-local" value="{{ request.form['started_on'] or project['started_on'] }}">
-        <label for="stopped_on">Stopped On</label>
-        <input name="stopped_on" id="stopped_on" type="datetime-local" value="{{ request.form['stopped_on'] or project['stopped_on'] }}">
-        <label for="continuous">Continuous</label>
-        <input name="continuous" id="continuous" type="radio" value="1" {% if project['continuous'] %} checked="true" {% endif %}>Yes</input>
-        <input name="continuous" id="continuous" type="radio" value="0" {% if not project['continuous'] %} checked="false" {% endif %}>No</input>
-        <label for="last_modified">Last Modified</label>
-        <input name="last_modified" id="last_modified" type="datetime-local" value="{{ request.form['last_modified'] or project['last_modified'] }}">
+        <div class="row">
+            <div class="col-25">
+                <label for="created">Created</label>
+            </div>
+            <div class="col-75">
+                <input name="created" id="created" type="datetime-local" value="{{ request.form['created'] or project['created'] }}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-25">
+                <label for="done">Done</label>
+            </div>
+            <div class="col-75">
+                <input name="done" id="done" type="datetime-local" value="{{ request.form['done'] or project['done'] }}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-25">
+                <label for="started_on">Started On</label>
+            </div>
+            <div class="col-75">
+                <input name="started_on" id="started_on" type="datetime-local" value="{{ request.form['started_on'] or project['started_on'] }}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-25">
+                <label for="stopped_on">Stopped On</label>
+            </div>
+            <div class="col-75">
+                <input name="stopped_on" id="stopped_on" type="datetime-local" value="{{ request.form['stopped_on'] or project['stopped_on'] }}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-25">
+                <p>Continuous (long term, un-ending)</p>
+            </div>
+            <div class="col-75">
+                <input name="continuous" id="c_yes" type="radio" value="1" {% if project['continuous'] %} checked="true" {% endif %}>Yes</input>
+                <input name="continuous" id="c_no" type="radio" value="0" {% if not project['continuous'] %} checked="true" {% endif %}>No</input>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-25">
+                <label for="last_modified">Last Modified</label>
+            </div>
+            <div class="col-75">
+                <input name="last_modified" id="last_modified" type="datetime-local" value="{{ request.form['last_modified'] or project['last_modified'] }}">
+            </div>
+        </div>
         <input type="submit" value="Save">
-       </div>
-      </div>
-     </div>
-  </form>
+    </form>
+  </div>
+
 {% endblock %}

@@ -56,12 +56,12 @@ table {
     margin: 10px 5px 5px 5px;
 }
 
-input {
-  /*width: 100%;*/
+/*input {
+  width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
   box-sizing: border-box;
-}
+}*/
 
 .navlink a {
   font: bold 12px Arial;
