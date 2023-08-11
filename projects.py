@@ -59,7 +59,7 @@ def start():
         """ Projects that have been completed """
         db = database.get_db()
         projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects 
-                        where done is NOT NULL order by started_on""").fetchall()
+                        where (done is NOT NULL) order by done""").fetchall()
         columns = ("number", "idea", "created", "started_on", "stopped_on", "done")
         return render_template("list.html.j2", title="Completed", projects=projects,
                                columns=columns)
