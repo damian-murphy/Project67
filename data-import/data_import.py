@@ -12,10 +12,10 @@ SCHEMA = "db_init.sql"
 
 def dt_from_str(string):
     """ Simple func to return datetime based on string input """
-    if string is not None:
+    if not pd.isna(string):
         return datetime.datetime.strptime(str(string), "%d/%m/%Y %H:%M")
     else:
-        return None
+        return string
 
 if __name__ == '__main__':
     csvdata = pd.read_csv(CSVFILE)
@@ -46,7 +46,7 @@ if __name__ == '__main__':
              "links": row[7], "memoranda": row[8], "last_modified": f_last_modified
             }
         )
-
+        print(rowdata)
         database.execute("INSERT INTO projects VALUES(:number, :idea, :created, :done, :started_on, :stopped_on, :continuous, :links, :memoranda, :last_modified)",
                          rowdata)
     database.commit()
