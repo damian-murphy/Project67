@@ -11,9 +11,13 @@
        <h3>Notes</h3>
         <p>{{ project['memoranda'] }}</p>
        <h3>Links</h3>
-        {% for link in project['links'].split() %}
+        {% if project['links'] is not none %}
+            {% for link in project['links'].split() %}
         <p><a href="{{ link }}">{{ link }}</a></p>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+        <p>None</p>
+        {% endif %}
     </div>
     <div class="colbox">
        <p>Created: {{ project['created'] }}</p>
