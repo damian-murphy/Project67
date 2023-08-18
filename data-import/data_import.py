@@ -27,11 +27,9 @@ if __name__ == '__main__':
     schema = open("db_init.sql", mode="r")
     database.executescript(schema.read())
 
-    # Load the data using executemany
+    # Load the data, fix the dates, insert a row at a time
     # It's in a dataframe, and we can discard the dataframe index as we don't need it
-    # database.executemany(
-    #     "INSERT INTO projects VALUES(:number, :idea, :created, :done, :started_on, :stopped_on, :continuous, :links, :memoranda, :last_modified)",
-    #     csvdata.itertuples(index=False))
+    count = 0
     for row in csvdata.itertuples(index=False):
 
         f_created = dt_from_str(row[2])
@@ -46,10 +44,12 @@ if __name__ == '__main__':
              "links": row[7], "memoranda": row[8], "last_modified": f_last_modified
             }
         )
-        print(rowdata)
+        print(".", end='')
+        count = count+1
         database.execute("INSERT INTO projects VALUES(:number, :idea, :created, :done, :started_on, :stopped_on, :continuous, :links, :memoranda, :last_modified)",
                          rowdata)
     database.commit()
-
+    print("")
+    print("Inserted " + str(count) + " rows into database.")
     database.close()
     print("0 OK 0:1")

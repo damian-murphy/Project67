@@ -78,7 +78,7 @@
                 <label for="last_modified">Last Modified</label>
             </div>
             <div class="col-75">
-                <input name="last_modified" id="last_modified" type="datetime-local" value="{{ request.form['last_modified'] or project['last_modified'] }}">
+                <input name="last_modified" id="last_modified" type="datetime-local" value="{{ request.form['last_modified'] or dtnow }}">
             </div>
         </div>
         <input type="submit" value="Save">
