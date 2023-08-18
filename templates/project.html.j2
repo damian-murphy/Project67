@@ -11,7 +11,9 @@
        <h3>Notes</h3>
         <p>{{ project['memoranda'] }}</p>
        <h3>Links</h3>
-        <p>{{ project['links'] }}</p>
+        {% for link in project['links'].split() %}
+        <p><a href="{{ link }}">{{ link }}</a></p>
+        {% endfor %}
     </div>
     <div class="colbox">
        <p>Created: {{ project['created'] }}</p>
