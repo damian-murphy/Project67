@@ -1,11 +1,15 @@
+""" Data importer - imports a csv file in the expected format into a local sqlite3 db
+    Does convert dates from D-M-YYYY HH:MM to python datetime objects
+    Otherwise, imports as-is
+    """
 # Importer for data from csv
 # Requires a schema
 # Initialises a Sqlite3 db, imports a csv, inserts into the db
 # simples
 # (C)2023 DJM LZP
 import datetime
-import pandas as pd
 import sqlite3
+import pandas as pd
 
 CSVFILE = "projects.csv"
 SCHEMA = "db_init.sql"
@@ -20,11 +24,11 @@ def dt_from_str(string):
 if __name__ == '__main__':
     csvdata = pd.read_csv(CSVFILE)
 
-    database = sqlite3.connect("../db/sql3-database.sdb")
+    database = sqlite3.connect("../db/sql3-database.sdb")  # pylint: disable=wrong-import-order
 
     # Initialise
     print("Reticulating Splines")
-    schema = open("db_init.sql", mode="r")
+    schema = open("db_init.sql", mode="r", encoding="utf-8")  # pylint: disable=consider-using-with
     database.executescript(schema.read())
 
     # Load the data, fix the dates, insert a row at a time
@@ -46,7 +50,9 @@ if __name__ == '__main__':
         )
         print(".", end='')
         count = count+1
-        database.execute("INSERT INTO projects VALUES(:number, :idea, :created, :done, :started_on, :stopped_on, :continuous, :links, :memoranda, :last_modified)",
+        database.execute("""INSERT INTO projects VALUES(:number, :idea, :created, :done,
+                        :started_on, :stopped_on, :continuous, :links, :memoranda, 
+                        :last_modified)""",
                          rowdata)
     database.commit()
     print("")

@@ -1,27 +1,27 @@
+""" The Projects File
+    A tool to keep track of ideas, projects and so on
+    """
+
 # The Project File
 # (C) Damian Murphy. Original Projects.txt, 1995/1996-2003, previous organisers 1989-1993
 #
-import database
 import datetime
-from flask import (
-    Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
-)
+from flask import Flask, flash, redirect, render_template, request, url_for
+import database
 
-import os
+# MEMO On Data
+#     Project:
+#         Number: n
+#         Idea: String
+#         Added: Date
+#         Done: Date
+#         Started On: Date # Implies in progress
+#         Stopped On: Date
+#         Continuous: Neverending idea
+#         Links: String
+#         Memoranda: Large notes section
+#
 
-""" Data
-    Project:
-        Number: n
-        Idea: String
-        Added: Date
-        Done: Date
-        Started On: Date # Implies in progress
-        Stopped On: Date
-        Continuous: Neverending idea
-        Links: String
-        Memoranda: Large notes section
-        Log: Start/Stop log?
-"""
 def dt_from_str(string):
     """ Simple func to return datetime based on string input from html datetime
         Empty values or blank strings are returned as None value """
@@ -37,7 +37,7 @@ def start():
     with app.app_context():
         database.init_app(app)
 
-    bp = Blueprint("test", 'projects')
+    # bp = Blueprint("test", 'projects')
 
     @app.route("/hello")
     def hello():
@@ -47,7 +47,7 @@ def start():
     def home():
         """ Main index page, also show a list of currently active projects for focus """
         db = database.get_db()
-        projects = db.execute("""select number,idea,created,started_on from projects 
+        projects = db.execute("""select number,idea,created,started_on from projects
                         where started_on is not NULL and ( done='0' or done is NULL )
                          order by started_on""").fetchall()
         return render_template("index.html.j2", title="Currently Active", projects=projects)
@@ -56,7 +56,7 @@ def start():
     def paused():
         """ Projects that have been stopped but not completed """
         db = database.get_db()
-        projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects 
+        projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects
                         where started_on is not NULL and stopped_on is not NULL 
                         and done is NULL order by started_on""").fetchall()
         return render_template("list.html.j2", title="Paused", projects=projects)
@@ -65,16 +65,17 @@ def start():
     def done():
         """ Projects that have been completed """
         db = database.get_db()
-        projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects 
+        projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects
                         where (done is NOT NULL) order by done DESC""").fetchall()
         columns = ("number", "idea", "created", "started_on", "stopped_on", "done")
         return render_template("list.html.j2", title="Completed", projects=projects,
                                columns=columns)
 
     @app.route("/list")
-    def list():
+    def getlist():
         db = database.get_db()
-        projects = db.execute("select number,idea,created,done from projects order by number").fetchall()
+        projects = db.execute("""select number,idea,created,done from projects
+                               order by number""").fetchall()
         columns = ("number", "idea", "created", "done")
         return render_template("list.html.j2", title="All", projects=projects, columns=columns)
 

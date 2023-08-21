@@ -1,8 +1,11 @@
+""" Database.py:
+    Contains database storage functions. These functions can be a wrapper around
+    whatever storage mechanism we want to use.
+    Currently, it's sqlite3 stored locally.
+    """
 # Let's use SQL-Lite for now, we can always change this up later if needed
 
 import sqlite3
-
-from flask import current_app
 from flask import g
 
 
@@ -18,7 +21,7 @@ def get_db():
     return g.db
 
 
-def close_db(e=None):
+def close_db():
     """If this request connected to the database, close the
     connection.
     """
