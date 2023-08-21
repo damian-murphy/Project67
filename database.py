@@ -21,13 +21,13 @@ def get_db():
     return g.db
 
 
-def close_db():
+def close_db(e=None):
     """If this request connected to the database, close the
     connection.
     """
     db = g.pop("db", None)
 
-    if db is not None:
+    if db is not e:
         db.close()
 
 def init_app(app):
