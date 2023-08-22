@@ -128,5 +128,5 @@ def start():
 
 # Start me up
 if __name__ == '__main__':
-    app = start()
-    app.run()
+    myapp = start()
+    myapp.run()
