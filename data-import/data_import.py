@@ -7,6 +7,7 @@
 # Initialises a Sqlite3 db, imports a csv, inserts into the db
 # simples
 # (C)2023 DJM LZP
+import argparse
 import datetime
 import sqlite3
 import pandas as pd
@@ -20,6 +21,11 @@ def dt_from_str(string):
         return datetime.datetime.strptime(str(string), "%d/%m/%Y %H:%M")
     else:
         return string
+
+def get_args():
+    """ Parse command line args """
+    parser = argparse.ArgumentParser(description='Import data into chosen database, either dynamodb or sqlite3')
+    parser.add_argument('db')
 
 if __name__ == '__main__':
     csvdata = pd.read_csv(CSVFILE)
