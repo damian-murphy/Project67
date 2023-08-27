@@ -13,7 +13,7 @@ import sqlite3
 import pandas as pd
 
 CSVFILE = "projects.csv"
-SCHEMA = "db_init.sql"
+SCHEMA_SQL = "db_init.sql"
 
 def dt_from_str(string):
     """ Simple func to return datetime based on string input """
@@ -22,12 +22,28 @@ def dt_from_str(string):
     else:
         return string
 
-def get_args():
-    """ Parse command line args """
-    parser = argparse.ArgumentParser(description='Import data into chosen database, either dynamodb or sqlite3')
-    parser.add_argument('db')
+def parse_cmdline():
+    """
+    Parse the command line options:
+        -t type (database type, either sqlite3 or dynamodb)
+        filename.csv (filename of csv data for import)
+    :return:
+    """
+    # Parse any command line options.
+    # Argparse seems nice.
+    parser = \
+        argparse.ArgumentParser(description="imports csv data into database")
+    parser.add_argument("-t", "--type", action="store_true",
+                        help="select which back end to use - sqlite3 or dynamodb")
+    parser.add_argument("filename.csv", action="store_true",
+                        help="filename to use for csv input")
+    args = parser.parse_args()
+    return args
 
 if __name__ == '__main__':
+
+    options = parse_cmdline()
+
     csvdata = pd.read_csv(CSVFILE)
 
     database = sqlite3.connect("../db/sql3-database.sdb")  # pylint: disable=wrong-import-order
