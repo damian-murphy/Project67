@@ -78,6 +78,42 @@ def setup_db(db_type, db_conn):
     return ret
 
 
+def db_insert(db_type, db_conn, data):
+    """ Insert data into database
+    ::parameter db_type: either sqlite3 or dynamodb
+    ::returns True on success """
+
+    if db_type == 'sqlite3':
+        ret = db_conn.execute("""INSERT INTO projects VALUES(:number, :idea, :created, :done,
+                              :started_on, :stopped_on, :continuous, :links, :memoranda, 
+                              :last_modified)""",
+                              data)
+        db_conn.commit()
+    elif db_type == 'dynamodb':
+        ret = True
+    else:
+        # Something went wrong with the db_type parameter!
+        ret = False
+
+    return ret
+
+
+def db_close(db_type, db_conn):
+    """ Close the open database connection
+    ::parameter db_type: either sqlite3 or dynamodb
+    ::parameter db_conn: connection object
+    ::returns True on success """
+
+    if db_type == 'sqlite3':
+        ret = db_conn.close()
+    elif db_type == 'dynamodb':
+        ret = True
+    else:
+        ret = False  # ruh-roh
+
+    return ret
+
+
 if __name__ == '__main__':
 
     # See what we're asked to do
@@ -87,10 +123,9 @@ if __name__ == '__main__':
     csvdata = pd.read_csv(CSVFILE)
 
     # Get a database connection
-    try:
-        database = db_init(options.type)
-    except None as err:
-        print("Error getting DB connection", err)
+    database = db_init(options.type)
+    if database is None:
+        print("Error getting DB connection!")
         sys.exit(2)
 
     # Initialise the database, mainly useful for creating a table in sql.
@@ -120,12 +155,14 @@ if __name__ == '__main__':
         )
         print(".", end='')
         count = count + 1
-        database.execute("""INSERT INTO projects VALUES(:number, :idea, :created, :done,
-                        :started_on, :stopped_on, :continuous, :links, :memoranda, 
-                        :last_modified)""",
-                         rowdata)
-    database.commit()
+        if not db_insert(options.type, database, rowdata):
+            print("Error inserting values!")
+            sys.exit(2)
+
     print("")
     print("Inserted " + str(count) + " rows into database.")
-    database.close()
+    if db_close(options.type, database):
+        print("DB Connection closed.")
+    else:
+        print("Error closing db!")
     print("0 OK 0:1")
