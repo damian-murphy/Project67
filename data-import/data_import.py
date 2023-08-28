@@ -35,14 +35,16 @@ def parse_cmdline():
         argparse.ArgumentParser(description="imports csv data into database")
     parser.add_argument("-t", "--type", action="store_true",
                         help="select which back end to use - sqlite3 or dynamodb")
-    parser.add_argument("filename.csv", action="store_true",
+    parser.add_argument("filename", action="store_true",
                         help="filename to use for csv input")
     args = parser.parse_args()
     return args
 
 if __name__ == '__main__':
 
+    # See what we're asked to do
     options = parse_cmdline()
+    CSVFILE = options.filename
 
     csvdata = pd.read_csv(CSVFILE)
 
