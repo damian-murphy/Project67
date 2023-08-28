@@ -1,0 +1,59 @@
+# YAML database layout for dynamodb.
+# Come to think of it, for any YAML storage. Could be memory, or file either.
+# Project 67
+
+# Beware, if this table name exists, we'll use it regardless.
+# So, ensure the name is free and available or something bad could happen
+ddb_tablename: "projectsdb"
+
+ddb_keyschema: [
+  {
+    'AttributeName': "number",
+    'KeyType': 'HASH'
+  }
+  ]
+
+ddb_attribdefs: [
+  {
+    'AttributeName': "number",
+    'AttributeType': 'N'
+  }
+]
+
+#  {
+#    'AttributeName': "idea",
+#    'AttributeType': 'S'
+#  },
+#  {
+#    'AttributeName': "created",
+#    'AttributeType': 'N'
+#  },
+#  {
+#    'AttributeName': "done",
+#    'AttributeType': 'N'
+#  },
+#  {
+#    'AttributeName': "started_on",
+#    'AttributeType': 'N'
+#  },
+#    {
+#        'AttributeName': "stopped_on",
+#        'AttributeType': 'N'
+#    },
+#    {
+#        'AttributeName': "continuous",
+#        'AttributeType': 'S'
+#    },
+#    {
+#        'AttributeName': "links",
+#        'AttributeType': 'S'
+#    },
+#    {
+#        'AttributeName': "memoranda",
+#        'AttributeType': 'S'
+#    },
+#    {
+#        'AttributeName': "last_modified",
+#        'AttributeType': 'N'
+#    }
+#  ]

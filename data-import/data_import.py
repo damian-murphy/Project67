@@ -12,10 +12,14 @@ import datetime
 import sqlite3
 import sys
 
+import botocore
+import yaml
+import boto3
 import pandas as pd
 
 # CSVFILE = "projects.csv"
 SCHEMA_SQL = "db_init.sql"
+SCHEMA_YAML = "db_init.yaml"
 
 
 def dt_from_str(string):
@@ -54,7 +58,7 @@ def db_init(db_type):
     if db_type == 'sqlite3':
         db_conn = sqlite3.connect("../db/sql3-database.sdb")  # pylint: disable=wrong-import-order
     elif db_type == 'dynamodb':
-        db_conn = 'wibble'
+        db_conn = boto3.resource('dynamodb', region_name='eu-west-1')
     else:
         db_conn = None
 
@@ -70,7 +74,59 @@ def setup_db(db_type, db_conn):
         schema = open(SCHEMA_SQL, mode="r", encoding="utf-8")  # pylint: disable=consider-using-with
         ret = db_conn.executescript(schema.read())
     elif db_type == 'dynamodb':
-        ret = True
+        # Load the yaml config file for the key type and attributes
+        try:
+            schema = yaml.safe_load(open(SCHEMA_YAML))
+        except (yaml.YAMLError, IOError) as err:
+            print("R Tape Loading Error, ", err)
+            return False
+
+        # Create table unless exists, in which case this thing throws shapes
+        try:
+            table = db_conn.create_table(TableName=schema['ddb_tablename'], KeySchema=schema['ddb_keyschema'],
+                                         AttributeDefinitions=schema['ddb_attribdefs'],
+                                         ProvisionedThroughput={
+                                            'ReadCapacityUnits': 1,
+                                            'WriteCapacityUnits': 1
+                                            }
+                                         )
+        except db_conn.meta.client.exceptions.ResourceInUseException as err:
+            print("Oh dear, the table already exists!", err)
+            print("Will now delete it first")
+
+            # Let's just re-use the existing table and update it to be sure.
+            # Fingers crossed we're not blowing something away here, so make sure you've setup the right
+            # resources in AWS or otherwise ka-blooey
+
+            # Get the client connection object first
+            table = db_conn.meta.client
+
+            # Now we can delete it and re-create
+            table.delete_table(TableName=schema['ddb_tablename'])
+
+            # If we jump ahead now, the table may not yet be deleted and we'll end up having to redo from start
+            # So use these waiter processes.
+            print("Waiting for table deletion to be confirmed...", end='')
+            waiter = table.get_waiter('table_not_exists')
+            waiter.wait(TableName=schema['ddb_tablename'])
+            print("done")
+
+            print("Re-creating table...", end='')
+            table = db_conn.create_table(TableName=schema['ddb_tablename'], KeySchema=schema['ddb_keyschema'],
+                                         AttributeDefinitions=schema['ddb_attribdefs'],
+                                         ProvisionedThroughput={
+                                             'ReadCapacityUnits': 1,
+                                             'WriteCapacityUnits': 1
+                                         }
+                                         )
+
+        table.wait_until_exists()
+        print("done")
+        # if empty, this will return 0
+        if table.item_count == 0:
+            ret = table  # for dynamodb, we want to return the table object, so we can use it for inserts later
+        else:
+            ret = False  # ruh-roh raggy!
     else:
         # Something went wrong with the db_type parameter!
         ret = False
@@ -81,6 +137,8 @@ def setup_db(db_type, db_conn):
 def db_insert(db_type, db_conn, data):
     """ Insert data into database
     ::parameter db_type: either sqlite3 or dynamodb
+    ::parameter db_conn: database connection string (sqlite3) or table object (dynamodb)
+    ::parameter data: named tuple with a single row from the csvfile
     ::returns True on success """
 
     if db_type == 'sqlite3':
@@ -90,7 +148,8 @@ def db_insert(db_type, db_conn, data):
                               data)
         db_conn.commit()
     elif db_type == 'dynamodb':
-        ret = True
+        # we've got the table object as database so carry on
+        ret = table.put_item(Item=data)
     else:
         # Something went wrong with the db_type parameter!
         ret = False
@@ -107,7 +166,7 @@ def db_close(db_type, db_conn):
     if db_type == 'sqlite3':
         ret = db_conn.close()
     elif db_type == 'dynamodb':
-        ret = True
+        ret = True  # nothing to do here
     else:
         ret = False  # ruh-roh
 
@@ -130,9 +189,12 @@ if __name__ == '__main__':
 
     # Initialise the database, mainly useful for creating a table in sql.
     # DynamoDB option requires a table already created
-    print("Reticulating Splines")
+    print("Initialising a database of type " + options.type + ", and reticulating splines.")
 
-    if not setup_db(options.type, database):
+    # need the return value here, the dynamodb table object
+    # for sqlite3, this will be 'true' and can be discarded
+    table = setup_db(options.type, database)
+    if not table:
         print("Error initialising DB")
         sys.exit(2)
     # Ok, we're good so far
@@ -155,6 +217,10 @@ if __name__ == '__main__':
         )
         print(".", end='')
         count = count + 1
+        if options.type == 'dynamodb':
+            # set param to table object for dynamodb
+            database = table
+
         if not db_insert(options.type, database, rowdata):
             print("Error inserting values!")
             sys.exit(2)
