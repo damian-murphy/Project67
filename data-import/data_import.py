@@ -23,11 +23,17 @@ SCHEMA_YAML = "db_init.yaml"
 
 
 def dt_from_str(string):
-    """ Simple func to return datetime based on string input """
+    """ Simple func to return ISO formatted date based on string input
+    Expects format "%d/%m/%Y %H:%M" as that was in the original input,
+    returns format "%Y:%m:%dT%H:%M"
+    If NUL value is sent, we return a string with None in it.
+    We will interpret this as 'Not Set'
+    """
     if not pd.isna(string):
-        return datetime.datetime.strptime(str(string), "%d/%m/%Y %H:%M")
+        dt_tmp = datetime.datetime.strptime(str(string), "%d/%m/%Y %H:%M")
+        return datetime.datetime.strftime(dt_tmp, "%Y:%m:%dT%H:%M")
     else:
-        return string
+        return "None"
 
 
 def parse_cmdline():
@@ -149,6 +155,7 @@ def db_insert(db_type, db_conn, data):
         db_conn.commit()
     elif db_type == 'dynamodb':
         # we've got the table object as database so carry on
+        # Bonus points - we have the data in the right structure already.
         ret = table.put_item(Item=data)
     else:
         # Something went wrong with the db_type parameter!
