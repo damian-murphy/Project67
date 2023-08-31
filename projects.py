@@ -10,6 +10,7 @@ from flask import Flask, flash, redirect, render_template, request, url_for, g
 import database
 from boto3.dynamodb.conditions import Key, Attr
 
+
 # MEMO On Data
 #     Project:
 #         Number: n
@@ -30,6 +31,7 @@ def dt_from_str(string):
         return datetime.datetime.strptime(str(string), "%Y-%m-%dT%H:%M")
     else:
         return None
+
 
 def start():
     """ This bit is the main control """
@@ -112,7 +114,7 @@ def start():
         if app.config["DBTYPE"] == "sqlite3":
             project = db.execute("""select number,idea,created,done,memoranda,last_modified,
                                  started_on,stopped_on,continuous,links
-                                 from projects where number = ?""", (num, )).fetchone()
+                                 from projects where number = ?""", (num,)).fetchone()
             return render_template("project.html.j2", title=project['idea'], project=project)
         else:
             project = db.query(
@@ -124,9 +126,15 @@ def start():
     @app.route("/project/<num>/edit", methods=("GET", "POST"))
     def edit_project(num):
         db = database.get_db()
-        project = db.execute("""select number,idea,created,done,memoranda,last_modified,
-                                 started_on,stopped_on,continuous,links
-                                 from projects where number = ?""", (num,)).fetchone()
+        if app.config["DBTYPE"] == "sqlite3":
+            project = db.execute("""select number,idea,created,done,memoranda,last_modified,
+                                    started_on,stopped_on,continuous,links
+                                    from projects where number = ?""", (num,)).fetchone()
+        else:
+            project = db.query(
+                KeyConditionExpression=Key('number').eq(int(num))
+            )
+            project = project['Items'][0]
 
         if request.method == "POST":
 
@@ -141,24 +149,42 @@ def start():
                 db = database.get_db()
                 # Remember to convert the datetime parameters into datetime
                 # objects in the format we're storing
-                db.execute(
-                    """UPDATE projects SET idea = ?, memoranda = ?, created = ?, done = ?, 
-                    last_modified = ?, started_on = ?, stopped_on = ?, continuous = ?, 
-                    links = ? where number = ?;""",
-                    (request.form["idea"], request.form["memoranda"],
-                     dt_from_str(request.form["created"]),
-                     dt_from_str(request.form["done"]), dt_from_str(request.form["last_modified"]),
-                     dt_from_str(request.form["started_on"]),
-                     dt_from_str(request.form["stopped_on"]), request.form["continuous"],
-                     request.form["links"], num)
-                )
-                db.commit()
+                if app.config["DBTYPE"] == "sqlite3":
+                    db.execute(
+                        """UPDATE projects SET idea = ?, memoranda = ?, created = ?, done = ?, 
+                        last_modified = ?, started_on = ?, stopped_on = ?, continuous = ?, 
+                        links = ? where number = ?;""",
+                        (request.form["idea"], request.form["memoranda"],
+                         dt_from_str(request.form["created"]),
+                         dt_from_str(request.form["done"]), dt_from_str(request.form["last_modified"]),
+                         dt_from_str(request.form["started_on"]),
+                         dt_from_str(request.form["stopped_on"]), request.form["continuous"],
+                         request.form["links"], num)
+                    )
+                    db.commit()
+                else:
+                    db.put_item(
+                        Item={
+                            'number': int(num),
+                            'idea': request.form["idea"],
+                            'memoranda': request.form["memoranda"],
+                            'created': request.form["created"],
+                            'done': request.form["done"],
+                            'last_modified': request.form["last_modified"],
+                            'started_on': request.form["started_on"],
+                            'stopped_on': request.form["stopped_on"],
+                            'continuous': request.form["continuous"],
+                            'links': request.form["links"]
+                        }
+                    )
+
                 return redirect(url_for("show_project", num=num))
 
         return render_template("edit.html.j2", title="Editing", project=project,
-                        dtnow=datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%dT%H:%M"))
+                               dtnow=datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%dT%H:%M"))
 
     return app
+
 
 # Start me up
 if __name__ == '__main__':
