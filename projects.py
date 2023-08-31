@@ -6,8 +6,9 @@
 # (C) Damian Murphy. Original Projects.txt, 1995/1996-2003, previous organisers 1989-1993
 #
 import datetime
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, url_for, g
 import database
+from boto3.dynamodb.conditions import Key, Attr
 
 # MEMO On Data
 #     Project:
@@ -34,7 +35,11 @@ def start():
     """ This bit is the main control """
     app = Flask('projects')
 
+    # Load the config file
+    app.config.from_pyfile('projects.cfg')
+
     with app.app_context():
+        # Set the DB type into G so we can access from the database functions module
         database.init_app(app)
 
     # bp = Blueprint("test", 'projects')
@@ -47,26 +52,44 @@ def start():
     def home():
         """ Main index page, also show a list of currently active projects for focus """
         db = database.get_db()
-        projects = db.execute("""select number,idea,created,started_on from projects
-                        where started_on is not NULL and ( done='0' or done is NULL )
-                         order by started_on""").fetchall()
+        if app.config["DBTYPE"] == "sqlite3":
+            projects = db.execute("""select number,idea,created,started_on from projects
+                                where started_on is not NULL and ( done='0' or done is NULL )
+                                order by started_on""").fetchall()
+        else:
+            projects = db.scan(
+                FilterExpression=Attr('started_on').ne('None') & Attr('done').eq('None')
+            )
+            projects = projects['Items']
         return render_template("index.html.j2", title="Currently Active", projects=projects)
 
     @app.route("/paused")
     def paused():
         """ Projects that have been stopped but not completed """
         db = database.get_db()
-        projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects
-                        where started_on is not NULL and stopped_on is not NULL 
-                        and done is NULL order by started_on""").fetchall()
+        if app.config["DBTYPE"] == "sqlite3":
+            projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects
+                            where started_on is not NULL and stopped_on is not NULL 
+                            and done is NULL order by started_on""").fetchall()
+        else:
+            projects = db.scan(
+                FilterExpression=Attr('started_on').ne('None') & Attr('stopped_on').ne('None') & Attr('done').eq('None')
+            )
+            projects = projects['Items']
         return render_template("list.html.j2", title="Paused", projects=projects)
 
     @app.route("/done")
     def done():
         """ Projects that have been completed """
         db = database.get_db()
-        projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects
-                        where (done is NOT NULL) order by done DESC""").fetchall()
+        if app.config["DBTYPE"] == "sqlite3":
+            projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects
+                            where (done is NOT NULL) order by done DESC""").fetchall()
+        else:
+            projects = db.scan(
+                FilterExpression=Attr('done').ne('None')
+            )
+            projects = projects['Items']
         columns = ("number", "idea", "created", "started_on", "stopped_on", "done")
         return render_template("list.html.j2", title="Completed", projects=projects,
                                columns=columns)
@@ -74,18 +97,29 @@ def start():
     @app.route("/list")
     def getlist():
         db = database.get_db()
-        projects = db.execute("""select number,idea,created,done from projects
-                               order by number""").fetchall()
+        if app.config["DBTYPE"] == "sqlite3":
+            projects = db.execute("""select number,idea,created,done from projects
+                                   order by number""").fetchall()
+        else:
+            projects = db.scan()
+            projects = projects['Items']
         columns = ("number", "idea", "created", "done")
         return render_template("list.html.j2", title="All", projects=projects, columns=columns)
 
     @app.route("/project/<num>")
     def show_project(num):
         db = database.get_db()
-        project = db.execute("""select number,idea,created,done,memoranda,last_modified,
-                             started_on,stopped_on,continuous,links
-                             from projects where number = ?""", (num, )).fetchone()
-        return render_template("project.html.j2", title=project['idea'], project=project)
+        if app.config["DBTYPE"] == "sqlite3":
+            project = db.execute("""select number,idea,created,done,memoranda,last_modified,
+                                 started_on,stopped_on,continuous,links
+                                 from projects where number = ?""", (num, )).fetchone()
+            return render_template("project.html.j2", title=project['idea'], project=project)
+        else:
+            project = db.query(
+                KeyConditionExpression=Key('number').eq(int(num))
+            )
+            project = project['Items']
+            return render_template("project.html.j2", title=project[0]['idea'], project=project[0])
 
     @app.route("/project/<num>/edit", methods=("GET", "POST"))
     def edit_project(num):
