@@ -180,6 +180,13 @@ def db_close(db_type, db_conn):
     return ret
 
 
+def strip_nan(string):
+    """ Convert NaN to 'NA' """
+    if not pd.isna(string):
+        return string
+    # otherwise
+    return "NA"
+
 if __name__ == '__main__':
 
     # See what we're asked to do
@@ -217,9 +224,9 @@ if __name__ == '__main__':
         f_last_modified = dt_from_str(row[9])
 
         rowdata = (
-            {"number": row[0], "idea": row[1], "created": f_created, "done": f_done,
-             "started_on": f_started_on, "stopped_on": f_stopped_on, "continuous": row[6],
-             "links": row[7], "memoranda": row[8], "last_modified": f_last_modified
+            {"number": row[0], "idea": strip_nan(row[1]), "created": f_created, "done": f_done,
+             "started_on": f_started_on, "stopped_on": f_stopped_on, "continuous": strip_nan(row[6]),
+             "links": strip_nan(row[7]), "memoranda": strip_nan(row[8]), "last_modified": f_last_modified
              }
         )
         print(".", end='')
