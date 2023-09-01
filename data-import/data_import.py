@@ -171,7 +171,8 @@ def db_close(db_type, db_conn):
     ::returns True on success """
 
     if db_type == 'sqlite3':
-        ret = db_conn.close()
+        db_conn.close()
+        ret = True
     elif db_type == 'dynamodb':
         ret = True  # nothing to do here
     else:
