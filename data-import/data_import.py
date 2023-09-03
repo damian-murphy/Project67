@@ -97,7 +97,7 @@ def setup_db(db_type, db_conn):
                                             }
                                          )
         except db_conn.meta.client.exceptions.ResourceInUseException as err:
-            print("Oh dear, the table already exists!", err)
+            print("Oh dear, the table already exists!")
             print("Will now delete it first")
 
             # Let's just re-use the existing table and update it to be sure.
@@ -212,10 +212,10 @@ if __name__ == '__main__':
     csvdata = pd.read_csv(CSVFILE)
 
     # Get a database connection
-    # database = db_init(options.type)
-    # if database is None:
-    #     print("Error getting DB connection!")
-    #     sys.exit(2)
+    database = db_init(options.type)
+    if database is None:
+        print("Error getting DB connection!")
+        sys.exit(2)
 
     # Initialise the database, mainly useful for creating a table in sql.
     # DynamoDB option requires a table already created
@@ -223,10 +223,10 @@ if __name__ == '__main__':
 
     # need the return value here, the dynamodb table object
     # for sqlite3, this will be 'true' and can be discarded
-    # table = setup_db(options.type, database)
-    # if not table:
-    #     print("Error initialising DB")
-    #     sys.exit(2)
+    table = setup_db(options.type, database)
+    if not table:
+        print("Error initialising DB")
+        sys.exit(2)
     # Ok, we're good so far
 
     # Load the data, fix the dates, insert a row at a time
@@ -263,18 +263,18 @@ if __name__ == '__main__':
 
         print(".", end='')
         count = count + 1
-        # if options.type == 'dynamodb':
-        #     # set param to table object for dynamodb
-        #     database = table
+        if options.type == 'dynamodb':
+            # set param to table object for dynamodb
+            database = table
 
-        # if not db_insert(options.type, database, rowdata):
-        #     print("Error inserting values!")
-        #     sys.exit(2)
+        if not db_insert(options.type, database, rowdata):
+            print("Error inserting values!")
+            sys.exit(2)
 
     print("")
     print("Inserted " + str(count) + " rows into database.")
-    # if db_close(options.type, database):
-    #     print("DB Connection closed.")
-    # else:
-    #     print("Error closing db!")
+    if db_close(options.type, database):
+        print("DB Connection closed.")
+    else:
+        print("Error closing db!")
     print("0 OK 0:1")
