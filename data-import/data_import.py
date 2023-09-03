@@ -26,14 +26,14 @@ def dt_from_str(string):
     """ Simple func to return ISO formatted date based on string input
     Expects format "%d/%m/%Y %H:%M" as that was in the original input,
     returns format "%Y:%m:%dT%H:%M"
-    If NUL value is sent, we return a string with None in it.
-    We will interpret this as 'Not Set'
+    If NULL or NAN is passed, we return None type
+    We will interpret this as 'Not Set' for key-value stores, and as NaN for SQL stores
     """
     if not pd.isna(string):
         dt_tmp = datetime.datetime.strptime(str(string), "%d/%m/%Y %H:%M")
         return datetime.datetime.strftime(dt_tmp, "%Y:%m:%dT%H:%M")
     else:
-        return "None"
+        return None
 
 
 def parse_cmdline():
@@ -182,11 +182,26 @@ def db_close(db_type, db_conn):
 
 
 def strip_nan(string):
-    """ Convert NaN to 'NA' """
+    """ Convert NaN to 'NA'
+    For sqlite3, we can store NaN and deal with that,
+    but for dynamodb, we will have a missing attribute instead. This is to get around
+    not being able to store NaN values """
     if not pd.isna(string):
         return string
     # otherwise
     return "NA"
+
+def check_is_null(item):
+    """ Check for null, nan, None type
+    ::parameter item to test
+    ::returns True if we see a None, NaN or NULL value, False otherwise """
+    if pd.isna(item):
+        return True
+    elif item is None:
+        return True
+
+    return False
+
 
 if __name__ == '__main__':
 
@@ -197,10 +212,10 @@ if __name__ == '__main__':
     csvdata = pd.read_csv(CSVFILE)
 
     # Get a database connection
-    database = db_init(options.type)
-    if database is None:
-        print("Error getting DB connection!")
-        sys.exit(2)
+    # database = db_init(options.type)
+    # if database is None:
+    #     print("Error getting DB connection!")
+    #     sys.exit(2)
 
     # Initialise the database, mainly useful for creating a table in sql.
     # DynamoDB option requires a table already created
@@ -208,10 +223,10 @@ if __name__ == '__main__':
 
     # need the return value here, the dynamodb table object
     # for sqlite3, this will be 'true' and can be discarded
-    table = setup_db(options.type, database)
-    if not table:
-        print("Error initialising DB")
-        sys.exit(2)
+    # table = setup_db(options.type, database)
+    # if not table:
+    #     print("Error initialising DB")
+    #     sys.exit(2)
     # Ok, we're good so far
 
     # Load the data, fix the dates, insert a row at a time
@@ -224,26 +239,42 @@ if __name__ == '__main__':
         f_stopped_on = dt_from_str(row[5])
         f_last_modified = dt_from_str(row[9])
 
-        rowdata = (
-            {"number": row[0], "idea": strip_nan(row[1]), "created": f_created, "done": f_done,
-             "started_on": f_started_on, "stopped_on": f_stopped_on, "continuous": strip_nan(row[6]),
-             "links": strip_nan(row[7]), "memoranda": strip_nan(row[8]), "last_modified": f_last_modified
-             }
-        )
+        if options.type == 'sqlite3':
+            rowdata = (
+                {"number": row[0], "idea": row[1], "created": f_created, "done": f_done,
+                 "started_on": f_started_on, "stopped_on": f_stopped_on, "continuous": row[6],
+                 "links": row[7], "memoranda": row[8], "last_modified": f_last_modified
+                 }
+            )
+        else:
+            # Must be dynamodb so
+            # We need to remove any NaN/Null/None values
+            itemlist = {
+                    "number": row[0], "idea": row[1], "created": f_created, "done": f_done,
+                    "started_on": f_started_on, "stopped_on": f_stopped_on, "continuous": row[6],
+                    "links": row[7], "memoranda": row[8], "last_modified": f_last_modified
+                    }
+
+            rowdata = {}
+            for item in itemlist:
+                if not check_is_null(itemlist[item]):
+                    rowdata.update({item: itemlist[item]})
+            print(rowdata)
+
         print(".", end='')
         count = count + 1
-        if options.type == 'dynamodb':
-            # set param to table object for dynamodb
-            database = table
+        # if options.type == 'dynamodb':
+        #     # set param to table object for dynamodb
+        #     database = table
 
-        if not db_insert(options.type, database, rowdata):
-            print("Error inserting values!")
-            sys.exit(2)
+        # if not db_insert(options.type, database, rowdata):
+        #     print("Error inserting values!")
+        #     sys.exit(2)
 
     print("")
     print("Inserted " + str(count) + " rows into database.")
-    if db_close(options.type, database):
-        print("DB Connection closed.")
-    else:
-        print("Error closing db!")
+    # if db_close(options.type, database):
+    #     print("DB Connection closed.")
+    # else:
+    #     print("Error closing db!")
     print("0 OK 0:1")
