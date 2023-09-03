@@ -89,7 +89,7 @@ def start():
                             where (done is NOT NULL) order by done DESC""").fetchall()
         else:
             projects = db.scan(
-                FilterExpression=Attr('done').ne('None')
+                FilterExpression=Attr('done').exists()
             )
             projects = projects['Items']
         columns = ("number", "idea", "created", "started_on", "stopped_on", "done")
