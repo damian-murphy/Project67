@@ -70,7 +70,7 @@ def start():
             projects = db.scan(
                 FilterExpression=Attr('started_on').exists() & ~Attr('done').exists()
             )
-            projects = sorted(projects['Items'], key=operator.attrgetter('number'))
+            projects = sorted(projects['Items'], key=operator.itemgetter('number'))
         return render_template("index.html.j2", title="Currently Active", projects=projects)
 
     @app.route("/paused")
@@ -86,7 +86,7 @@ def start():
                 FilterExpression=Attr('started_on').exists() & Attr('stopped_on').exists()
                                  & ~Attr('done').exists()
             )
-            projects = sorted(projects['Items'], key=get_sort_value(key='started_on'))
+            projects = sorted(projects['Items'], key=operator.itemgetter('stopped_on'))
         return render_template("list.html.j2", title="Paused", projects=projects)
 
     @app.route("/done")
@@ -100,7 +100,7 @@ def start():
             projects = db.scan(
                 FilterExpression=Attr('done').exists()
             )
-            projects = sorted(projects['Items'], key=get_sort_value(key='done'))
+            projects = sorted(projects['Items'], key=operator.itemgetter('done'), reverse=True)
         columns = ("number", "idea", "created", "started_on", "stopped_on", "done")
         return render_template("list.html.j2", title="Completed", projects=projects,
                                columns=columns)
@@ -113,7 +113,7 @@ def start():
                                    order by number""").fetchall()
         else:
             projects = db.scan()
-            projects = sorted(projects['Items'], key=get_sort_value)
+            projects = sorted(projects['Items'], key=operator.itemgetter('number'))
         columns = ("number", "idea", "created", "done")
         return render_template("list.html.j2", title="All", projects=projects, columns=columns)
 
@@ -141,7 +141,8 @@ def start():
                                     from projects where number = ?""", (num,)).fetchone()
         else:
             project = db.query(
-                KeyConditionExpression=Key('number').eq(int(num))
+                KeyConditionExpression=Key('number').eq(int(num)),
+                Select='ALL_ATTRIBUTES'
             )
             project = project['Items'][0]
 

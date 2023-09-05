@@ -25,13 +25,13 @@ SCHEMA_YAML = "db_init.yaml"
 def dt_from_str(string):
     """ Simple func to return ISO formatted date based on string input
     Expects format "%d/%m/%Y %H:%M" as that was in the original input,
-    returns format "%Y:%m:%dT%H:%M"
+    returns format "%Y-%m-%dT%H:%M"
     If NULL or NAN is passed, we return None type
     We will interpret this as 'Not Set' for key-value stores, and as NaN for SQL stores
     """
     if not pd.isna(string):
         dt_tmp = datetime.datetime.strptime(str(string), "%d/%m/%Y %H:%M")
-        return datetime.datetime.strftime(dt_tmp, "%Y:%m:%dT%H:%M")
+        return datetime.datetime.strftime(dt_tmp, "%Y-%m-%dT%H:%M")
     else:
         return None
 
