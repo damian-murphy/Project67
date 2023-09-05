@@ -6,6 +6,8 @@
 # (C) Damian Murphy. Original Projects.txt, 1995/1996-2003, previous organisers 1989-1993
 #
 import datetime
+import operator
+
 from flask import Flask, flash, redirect, render_template, request, url_for, g
 import database
 from boto3.dynamodb.conditions import Key, Attr
@@ -32,6 +34,12 @@ def dt_from_str(string):
     else:
         return None
 
+
+def get_sort_value(**arglist):
+    """ Return value in dict that we're sorting on """
+    item = arglist.get('item', None)
+    key = arglist.get('key', None)
+    return item[key]
 
 def start():
     """ This bit is the main control """
@@ -60,9 +68,9 @@ def start():
                                 order by started_on""").fetchall()
         else:
             projects = db.scan(
-                FilterExpression=Attr('started_on').ne('None') & Attr('done').eq('None')
+                FilterExpression=Attr('started_on').exists() & ~Attr('done').exists()
             )
-            projects = projects['Items']
+            projects = sorted(projects['Items'], key=operator.attrgetter('number'))
         return render_template("index.html.j2", title="Currently Active", projects=projects)
 
     @app.route("/paused")
@@ -75,9 +83,10 @@ def start():
                             and done is NULL order by started_on""").fetchall()
         else:
             projects = db.scan(
-                FilterExpression=Attr('started_on').ne('None') & Attr('stopped_on').ne('None') & Attr('done').eq('None')
+                FilterExpression=Attr('started_on').exists() & Attr('stopped_on').exists()
+                                 & ~Attr('done').exists()
             )
-            projects = projects['Items']
+            projects = sorted(projects['Items'], key=get_sort_value(key='started_on'))
         return render_template("list.html.j2", title="Paused", projects=projects)
 
     @app.route("/done")
@@ -91,7 +100,7 @@ def start():
             projects = db.scan(
                 FilterExpression=Attr('done').exists()
             )
-            projects = projects['Items']
+            projects = sorted(projects['Items'], key=get_sort_value(key='done'))
         columns = ("number", "idea", "created", "started_on", "stopped_on", "done")
         return render_template("list.html.j2", title="Completed", projects=projects,
                                columns=columns)
@@ -104,7 +113,7 @@ def start():
                                    order by number""").fetchall()
         else:
             projects = db.scan()
-            projects = projects['Items']
+            projects = sorted(projects['Items'], key=get_sort_value)
         columns = ("number", "idea", "created", "done")
         return render_template("list.html.j2", title="All", projects=projects, columns=columns)
 
