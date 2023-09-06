@@ -173,6 +173,11 @@ def start():
                     )
                     db.commit()
                 else:
+                    # Check for any empty items and don't add them to the key value store
+                    Items = {}
+                    for key, entry in request.form.items():
+                        if entry is not None or len(entry) != 0:
+                            Items[key] = entry
                     db.put_item(
                         Item={
                             'number': int(num),
