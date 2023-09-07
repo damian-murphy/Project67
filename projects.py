@@ -26,6 +26,15 @@ import database
 #         Memoranda: Large notes section
 #
 
+def convert_blank_to_null(test_item):
+    """ Convert empty or 'falsy' item to a NULL value for SQLITE3 insertion
+    This is to keep things in line with how we're dealing with empty values in
+    dynamodb """
+    if not test_item:
+        return None
+    # Otherwise...
+    return test_item
+
 
 app = Flask('projects')
 
@@ -156,9 +165,10 @@ def edit_project(num):
                     last_modified = ?, started_on = ?, stopped_on = ?, continuous = ?, 
                     links = ? where number = ?;""",
                     (request.form["idea"], request.form["memoranda"],
-                     request.form["created"], request.form["done"],
-                     request.form["last_modified"], request.form["started_on"],
-                     request.form["stopped_on"], request.form["continuous"],
+                     request.form["created"], convert_blank_to_null(request.form["done"]),
+                     convert_blank_to_null(request.form["last_modified"]),
+                     convert_blank_to_null(request.form["started_on"]),
+                     convert_blank_to_null(request.form["stopped_on"]), request.form["continuous"],
                      request.form["links"], num)
                 )
                 db.commit()
