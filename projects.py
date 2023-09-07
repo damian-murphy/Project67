@@ -7,11 +7,10 @@
 #
 import datetime
 import operator
-import sys
 
-from flask import Flask, flash, redirect, render_template, request, url_for, g
-import database
+from flask import Flask, flash, redirect, render_template, request, url_for
 from boto3.dynamodb.conditions import Key, Attr
+import database
 
 
 # MEMO On Data
@@ -27,20 +26,13 @@ from boto3.dynamodb.conditions import Key, Attr
 #         Memoranda: Large notes section
 #
 
-def dt_from_str(string):
-    """ Simple func to return datetime based on string input from html datetime
-        Empty values or blank strings are returned as None value """
-    if string != '':
-        return datetime.datetime.strptime(str(string), "%Y-%m-%dT%H:%M")
-    else:
-        return None
-
 
 def get_sort_value(**arglist):
     """ Return value in dict that we're sorting on """
     item = arglist.get('item', None)
     key = arglist.get('key', None)
     return item[key]
+
 
 def start():
     """ This bit is the main control """
@@ -79,13 +71,14 @@ def start():
         """ Projects that have been stopped but not completed """
         db = database.get_db()
         if app.config["DBTYPE"] == "sqlite3":
-            projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects
+            projects = db.execute("""select number,idea,created,started_on,stopped_on,done
+                            from projects
                             where started_on is not NULL and stopped_on is not NULL 
                             and done is NULL order by started_on""").fetchall()
         else:
             projects = db.scan(
                 FilterExpression=Attr('started_on').exists() & Attr('stopped_on').exists()
-                                 & ~Attr('done').exists()
+                & ~Attr('done').exists()
             )
             projects = sorted(projects['Items'], key=operator.itemgetter('stopped_on'))
         return render_template("list.html.j2", title="Paused", projects=projects)
@@ -95,7 +88,8 @@ def start():
         """ Projects that have been completed """
         db = database.get_db()
         if app.config["DBTYPE"] == "sqlite3":
-            projects = db.execute("""select number,idea,created,started_on,stopped_on,done from projects
+            projects = db.execute("""select number,idea,created,started_on,stopped_on,done
+                            from projects
                             where (done is NOT NULL) order by done DESC""").fetchall()
         else:
             projects = db.scan(
@@ -166,10 +160,9 @@ def start():
                         last_modified = ?, started_on = ?, stopped_on = ?, continuous = ?, 
                         links = ? where number = ?;""",
                         (request.form["idea"], request.form["memoranda"],
-                         dt_from_str(request.form["created"]),
-                         dt_from_str(request.form["done"]), dt_from_str(request.form["last_modified"]),
-                         dt_from_str(request.form["started_on"]),
-                         dt_from_str(request.form["stopped_on"]), request.form["continuous"],
+                         request.form["created"], request.form["done"],
+                         request.form["last_modified"], request.form["started_on"],
+                         request.form["stopped_on"], request.form["continuous"],
                          request.form["links"], num)
                     )
                     db.commit()
@@ -177,18 +170,19 @@ def start():
                     # Check for any empty items and don't add them to the key value store
                     # Add the number, which is the primary key first, as it's not stored in the
                     # form data.
-                    Items = {'number': int(num)}
+                    my_items = {'number': int(num)}
                     for key, entry in request.form.items():
                         if entry:
-                            Items[key] = entry
+                            my_items[key] = entry
                     db.put_item(
-                        Item=Items
+                        Item=my_items
                     )
 
                 return redirect(url_for("show_project", num=num))
 
         return render_template("edit.html.j2", title="Editing", project=project,
-                               dtnow=datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%dT%H:%M"))
+                               dtnow=datetime.datetime.strftime(datetime.datetime.now(),
+                                                                "%Y-%m-%dT%H:%M"))
 
     return app
 

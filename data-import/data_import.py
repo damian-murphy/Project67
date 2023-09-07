@@ -12,10 +12,9 @@ import datetime
 import sqlite3
 import sys
 
-import botocore
-import yaml
 import boto3
 import pandas as pd
+import yaml
 
 # CSVFILE = "projects.csv"
 SCHEMA_SQL = "db_init.sql"
@@ -82,43 +81,48 @@ def setup_db(db_type, db_conn):
     elif db_type == 'dynamodb':
         # Load the yaml config file for the key type and attributes
         try:
-            schema = yaml.safe_load(open(SCHEMA_YAML))
+            with open(SCHEMA_YAML, mode="r", encoding="utf-8") as my_schema:
+                schema = yaml.safe_load(my_schema)
         except (yaml.YAMLError, IOError) as err:
             print("R Tape Loading Error, ", err)
             return False
 
         # Create table unless exists, in which case this thing throws shapes
         try:
-            table = db_conn.create_table(TableName=schema['ddb_tablename'], KeySchema=schema['ddb_keyschema'],
+            dtable = db_conn.create_table(TableName=schema['ddb_tablename'],
+                                         KeySchema=schema['ddb_keyschema'],
                                          AttributeDefinitions=schema['ddb_attribdefs'],
                                          ProvisionedThroughput={
                                             'ReadCapacityUnits': 1,
                                             'WriteCapacityUnits': 1
                                             }
                                          )
-        except db_conn.meta.client.exceptions.ResourceInUseException as err:
+        except db_conn.meta.client.exceptions.ResourceInUseException:
             print("Oh dear, the table already exists!")
             print("Will now delete it first")
 
             # Let's just re-use the existing table and update it to be sure.
-            # Fingers crossed we're not blowing something away here, so make sure you've setup the right
+            # Fingers crossed we're not blowing something away here,
+            # so make sure you've setup the right
             # resources in AWS or otherwise ka-blooey
 
             # Get the client connection object first
-            table = db_conn.meta.client
+            dtable = db_conn.meta.client
 
             # Now we can delete it and re-create
-            table.delete_table(TableName=schema['ddb_tablename'])
+            dtable.delete_table(TableName=schema['ddb_tablename'])
 
-            # If we jump ahead now, the table may not yet be deleted and we'll end up having to redo from start
+            # If we jump ahead now, the table may not yet be deleted
+            # and we'll end up having to redo from start
             # So use these waiter processes.
             print("Waiting for table deletion to be confirmed...", end='')
-            waiter = table.get_waiter('table_not_exists')
+            waiter = dtable.get_waiter('table_not_exists')
             waiter.wait(TableName=schema['ddb_tablename'])
             print("done")
 
             print("Re-creating table...", end='')
-            table = db_conn.create_table(TableName=schema['ddb_tablename'], KeySchema=schema['ddb_keyschema'],
+            dtable = db_conn.create_table(TableName=schema['ddb_tablename'],
+                                         KeySchema=schema['ddb_keyschema'],
                                          AttributeDefinitions=schema['ddb_attribdefs'],
                                          ProvisionedThroughput={
                                              'ReadCapacityUnits': 1,
@@ -126,11 +130,13 @@ def setup_db(db_type, db_conn):
                                          }
                                          )
 
-        table.wait_until_exists()
+        dtable.wait_until_exists()
         print("done")
         # if empty, this will return 0
-        if table.item_count == 0:
-            ret = table  # for dynamodb, we want to return the table object, so we can use it for inserts later
+        if dtable.item_count == 0:
+            # for dynamodb, we want to return the table object,
+            # so we can use it for inserts later
+            ret = dtable
         else:
             ret = False  # ruh-roh raggy!
     else:
@@ -191,13 +197,14 @@ def strip_nan(string):
     # otherwise
     return "NA"
 
-def check_is_null(item):
+
+def check_is_null(my_item):
     """ Check for null, nan, None type
     ::parameter item to test
     ::returns True if we see a None, NaN or NULL value, False otherwise """
-    if pd.isna(item):
+    if pd.isna(my_item):
         return True
-    elif item is None:
+    elif my_item is None:
         return True
 
     return False
@@ -256,9 +263,9 @@ if __name__ == '__main__':
                     }
 
             rowdata = {}
-            for item in itemlist:
-                if not check_is_null(itemlist[item]):
-                    rowdata.update({item: itemlist[item]})
+            for ikey, item in itemlist.items():
+                if not check_is_null(item):
+                    rowdata[ikey] = item
             print(rowdata)
 
         print(".", end='')
