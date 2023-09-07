@@ -7,6 +7,7 @@
 #
 import datetime
 import operator
+import sys
 
 from flask import Flask, flash, redirect, render_template, request, url_for, g
 import database
@@ -174,23 +175,14 @@ def start():
                     db.commit()
                 else:
                     # Check for any empty items and don't add them to the key value store
-                    Items = {}
+                    # Add the number, which is the primary key first, as it's not stored in the
+                    # form data.
+                    Items = {'number': int(num)}
                     for key, entry in request.form.items():
-                        if entry is not None or len(entry) != 0:
+                        if entry:
                             Items[key] = entry
                     db.put_item(
-                        Item={
-                            'number': int(num),
-                            'idea': request.form["idea"],
-                            'memoranda': request.form["memoranda"],
-                            'created': request.form["created"],
-                            'done': request.form["done"],
-                            'last_modified': request.form["last_modified"],
-                            'started_on': request.form["started_on"],
-                            'stopped_on': request.form["stopped_on"],
-                            'continuous': request.form["continuous"],
-                            'links': request.form["links"]
-                        }
+                        Item=Items
                     )
 
                 return redirect(url_for("show_project", num=num))
