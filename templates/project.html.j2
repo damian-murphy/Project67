@@ -11,7 +11,7 @@
        <h3>Notes</h3>
         <p>{{ project['memoranda'] }}</p>
        <h3>Links</h3>
-        {% if project['links'] is not none %}
+        {% if project['links'] %}
             {% for link in project['links'].split() %}
         <p><a href="{{ link }}">{{ link }}</a></p>
             {% endfor %}

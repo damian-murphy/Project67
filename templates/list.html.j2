@@ -6,26 +6,30 @@
 
 {% block content %}
 <div>
-  <table>
-  {% for column in columns %}
-  <th>{{ column }}</th>
-  {% endfor %}
-
-  {% for project in projects %}
-      <tr>
+    {% if not projects %}
+    <h3>Nothing to see here!</h3>
+    {% else %}
+      <table>
       {% for column in columns %}
-         {% if "idea" in column %}
-         <td><a class="plink" href="/project/{{ project['number'] }}">{{ project['idea'] }}</a></td>
-         {% elif column in ['created', 'started_on', 'stopped_on', 'last_modified'] %}
-         <td>{{ project[column] }}</td>
-         {% else %}
-         <td>{{ project[column] }}</td>
-         {% endif %}
+      <th>{{ column }}</th>
       {% endfor %}
-      </tr>
-    {% if not loop.last %}
+
+      {% for project in projects %}
+          <tr>
+          {% for column in columns %}
+             {% if "idea" in column %}
+             <td><a class="plink" href="/project/{{ project['number'] }}">{{ project['idea'] }}</a></td>
+             {% elif column in ['created', 'started_on', 'stopped_on', 'last_modified'] %}
+             <td>{{ project[column] }}</td>
+             {% else %}
+             <td>{{ project[column] }}</td>
+             {% endif %}
+          {% endfor %}
+          </tr>
+        {% if not loop.last %}
+        {% endif %}
+      {% endfor %}
+      </table>
     {% endif %}
-  {% endfor %}
-  </table>
 </div>
 {% endblock %}
