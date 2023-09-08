@@ -157,8 +157,8 @@ def edit_project(num):
             flash(error)
         else:
             db = database.get_db()
-            # Remember to convert the datetime parameters into datetime
-            # objects in the format we're storing
+            # Remember to convert empty items to NULL for sqlite3
+            # For dynamodb, we simply remove or don't add that entry.
             if app.config["DBTYPE"] == "sqlite3":
                 db.execute(
                     """UPDATE projects SET idea = ?, memoranda = ?, created = ?, done = ?, 
