@@ -7,7 +7,6 @@
 #
 import datetime
 import operator
-
 from flask import Flask, flash, redirect, render_template, request, url_for
 from boto3.dynamodb.conditions import Key, Attr
 import database
@@ -45,12 +44,35 @@ with app.app_context():
     # Set the DB type into G so we can access from the database functions module
     database.init_app(app)
 
+
 # bp = Blueprint("test", 'projects')
+# Add template filters
+
+
+@app.template_filter()
+def format_datetime(datestring, fmt='standard'):
+    """ Display date formatter, for jinja2 template use
+    :parameters datestring (a standard date string), fmt (optional) - standard (only one currently)
+    """
+
+    if datestring:
+
+        datestring = datetime.datetime.strptime(datestring, "%Y-%m-%dT%H:%M")
+
+        if fmt == 'standard':
+            return datetime.datetime.strftime(datestring, "%a, %d %b, %Y, %I:%M %p")
+        elif fmt == 'relative':
+            delta = datetime.timedelta(datestring)
+            return babel.dates.format_timedelta(delta)
+
+    return "-"
+
 
 @app.route("/hello")
 def hello():
     """ Standard first function, prints Hello! """
     return "<h1>Hello!</h1>"
+
 
 @app.route("/")
 def home():
@@ -67,6 +89,7 @@ def home():
         projects = sorted(projects['Items'], key=operator.itemgetter('number'))
     return render_template("index.html.j2", title="Currently Active", projects=projects)
 
+
 @app.route("/paused")
 def paused():
     """ Projects that have been stopped but not completed """
@@ -79,10 +102,11 @@ def paused():
     else:
         projects = db.scan(
             FilterExpression=Attr('started_on').exists() & Attr('stopped_on').exists()
-            & ~Attr('done').exists()
+                             & ~Attr('done').exists()
         )
         projects = sorted(projects['Items'], key=operator.itemgetter('stopped_on'))
     return render_template("list.html.j2", title="Paused", projects=projects)
+
 
 @app.route("/done")
 def done():
@@ -101,6 +125,7 @@ def done():
     return render_template("list.html.j2", title="Completed", projects=projects,
                            columns=columns)
 
+
 @app.route("/list")
 def getlist():
     """ Return a rendering of a list of all items """
@@ -113,6 +138,7 @@ def getlist():
         projects = sorted(projects['Items'], key=operator.itemgetter('number'))
     columns = ("number", "idea", "created", "done")
     return render_template("list.html.j2", title="All", projects=projects, columns=columns)
+
 
 @app.route("/project/<num>")
 def show_project(num):
@@ -129,6 +155,7 @@ def show_project(num):
         )
         project = project['Items']
         return render_template("project.html.j2", title=project[0]['idea'], project=project[0])
+
 
 @app.route("/project/<num>/edit", methods=("GET", "POST"))
 def edit_project(num):

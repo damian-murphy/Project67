@@ -19,8 +19,8 @@
           {% for column in columns %}
              {% if "idea" in column %}
              <td><a class="plink" href="/project/{{ project['number'] }}">{{ project['idea'] }}</a></td>
-             {% elif column in ['created', 'started_on', 'stopped_on', 'last_modified'] %}
-             <td>{{ project[column] }}</td>
+             {% elif column in ['created', 'started_on', 'stopped_on', 'last_modified', 'done'] %}
+             <td>{{ project[column]|format_datetime }}</td>
              {% else %}
              <td>{{ project[column] }}</td>
              {% endif %}
