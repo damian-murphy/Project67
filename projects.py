@@ -56,15 +56,9 @@ def format_datetime(datestring, fmt='standard'):
     """
 
     if datestring:
-
         datestring = datetime.datetime.strptime(datestring, "%Y-%m-%dT%H:%M")
-
         if fmt == 'standard':
             return datetime.datetime.strftime(datestring, "%a, %d %b, %Y, %I:%M %p")
-        elif fmt == 'relative':
-            delta = datetime.timedelta(datestring)
-            return babel.dates.format_timedelta(delta)
-
     return "-"
 
 
@@ -138,6 +132,22 @@ def getlist():
         projects = sorted(projects['Items'], key=operator.itemgetter('number'))
     columns = ("number", "idea", "created", "done")
     return render_template("list.html.j2", title="All", projects=projects, columns=columns)
+
+
+@app.route("/habits")
+def gethabits():
+    """ Return a rendering of a list of all items marked continuous and not done """
+    db = database.get_db()
+    if app.config["DBTYPE"] == "sqlite3":
+        projects = db.execute("""select number,idea,created from projects
+                               where continuous = 1 order by number""").fetchall()
+    else:
+        projects = db.scan(
+            FilterExpression=Attr('continuous').eq(1)
+        )
+        projects = sorted(projects['Items'], key=operator.itemgetter('number'))
+    columns = ("number", "idea", "created", "continuous")
+    return render_template("list.html.j2", title="Habits", projects=projects, columns=columns)
 
 
 @app.route("/project/<num>")

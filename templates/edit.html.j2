@@ -69,8 +69,8 @@
                 <p>Continuous (long term, un-ending)</p>
             </div>
             <div class="col-75">
-                <input name="continuous" id="c_yes" type="radio" value="1" {% if project['continuous'] %} checked="true" {% endif %}>Yes</input>
-                <input name="continuous" id="c_no" type="radio" value="0" {% if not project['continuous'] %} checked="true" {% endif %}>No</input>
+                <input name="continuous" id="c_yes" type="radio" value="1" {% if project['continuous'] == '1' %} checked {% endif %}>Yes</input><br>
+                <input name="continuous" id="c_no" type="radio" value="0" {% if project['continuous'] == '0' or not project['continuous'] %} checked {% endif %}>No</input>
             </div>
         </div>
         <div class="row">
