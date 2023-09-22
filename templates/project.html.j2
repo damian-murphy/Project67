@@ -21,7 +21,7 @@
     </div>
     <div class="colbox">
        <p>Created: {{ project['created']|format_datetime }}</p>
-       <p>Neverending Story: {{ project['continuous'] }}</p>
+       <p>Habit: {% if project['continuous'] == 1 %}Yes{% else %}No{% endif %}</p>
        <p>Started On: {{ project['started_on']|format_datetime }}</p>
        <p>Stopped On: {{ project['stopped_on']|format_datetime }}</p>
        {% if not project['done'] %}
