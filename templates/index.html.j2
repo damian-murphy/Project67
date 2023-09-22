@@ -24,8 +24,8 @@
       <tr>
          <td>{{ project['number'] }}</td>
          <td><a class="plink" href="/project/{{ project['number'] }}">{{ project['idea'] }}</a></td>
-         <td>{{ project['created'] }}</td>
-         <td>{{ project['started_on'] }}</td>
+         <td>{{ project['created']|format_datetime }}</td>
+         <td>{{ project['started_on']|format_datetime }}</td>
       </tr>
   {% endfor %}
   </table>
