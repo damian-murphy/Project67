@@ -2,14 +2,12 @@
 #
 
 import pytest
-
-import projects
-from projects import app
+from projects import app as my_app
 
 
 @pytest.fixture()
 def testapp():
-    tapp = projects.app()
+    tapp = my_app
     tapp.config.update({
         "TESTING": True,
     })
@@ -22,12 +20,10 @@ def testapp():
 
 
 @pytest.fixture()
-def client(app):
-    return app.test_client()
+def client(testapp):
+    return testapp.test_client()
 
 
 @pytest.fixture()
-def runner(app):
-    return app.test_cli_runner()
-
-
+def runner(testapp):
+    return testapp.test_cli_runner()
