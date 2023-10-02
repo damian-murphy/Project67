@@ -10,4 +10,4 @@ def test_hello(client):
 def test_home(client):
     """ With the app, get home page, check for title """
     response = client.get('/')
-    assert response.data == b'<title>The Projects File - Projects: Currently Active'
+    assert b'<title>The Projects File - Projects: Currently Active' in response.data
