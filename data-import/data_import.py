@@ -51,6 +51,8 @@ def parse_cmdline():
                         choices=['sqlite3', 'dynamodb'])
     parser.add_argument("filename", action="store",
                         help="filename to use for csv input")
+    parser.add_argument("-t", "--testdb", action="store_true",
+                        help="create test databases for test system")
     args = parser.parse_args()
     return args
 
