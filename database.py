@@ -17,7 +17,8 @@ def get_db():
     """
     if "db" not in g:
         if current_app.config['DBTYPE'] == "sqlite3":
-            g.db = sqlite3.connect("db/sql3-database.sdb")
+            # g.db = sqlite3.connect("db/sql3-database.sdb")
+            g.db = sqlite3.connect(current_app.config['SQLITE3DB'])
             g.db.row_factory = sqlite3.Row
         elif current_app.config['DBTYPE'] == "dynamodb":
             conn = boto3.resource('dynamodb', region_name='eu-west-1')

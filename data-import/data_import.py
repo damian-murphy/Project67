@@ -51,15 +51,16 @@ def parse_cmdline():
                         choices=['sqlite3', 'dynamodb'])
     parser.add_argument("filename", action="store",
                         help="filename to use for csv input")
-    parser.add_argument("-t", "--testdb", action="store_true",
+    parser.add_argument("-t", "--testdb", action="store_true", dest="testdb",
                         help="create test databases for test system")
     args = parser.parse_args()
     return args
 
 
-def db_init(db_type):
+def db_init(db_type, testdb):
     """ Initialise a database connection
     ::parameter db_type: either 'sqlite3' or 'dynamodb'
+    ::parameter testdb: true (use test db names), false (use production names)
     ::returns connection object """
 
     if db_type == 'sqlite3':
@@ -221,7 +222,7 @@ if __name__ == '__main__':
     csvdata = pd.read_csv(CSVFILE)
 
     # Get a database connection
-    database = db_init(options.type)
+    database = db_init(options.type, options.testdb)
     if database is None:
         print("Error getting DB connection!")
         sys.exit(2)
