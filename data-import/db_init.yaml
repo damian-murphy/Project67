@@ -5,6 +5,7 @@
 # Beware, if this table name exists, we'll use it regardless.
 # So, ensure the name is free and available or something bad could happen
 ddb_tablename: "projectsdb"
+test_ddb_tablename: "test_projectsdb"
 
 ddb_keyschema: [
   {

@@ -63,8 +63,13 @@ def db_init(db_type, testdb):
     ::parameter testdb: true (use test db names), false (use production names)
     ::returns connection object """
 
+    if testdb:
+        sqlite3db = "../db/test-sql3-database.sdb"
+    else:
+        sqlite3db = "../db/sql3-database.sdb"
+
     if db_type == 'sqlite3':
-        db_conn = sqlite3.connect("../db/sql3-database.sdb")  # pylint: disable=wrong-import-order
+        db_conn = sqlite3.connect(sqlite3db)  # pylint: disable=wrong-import-order
     elif db_type == 'dynamodb':
         db_conn = boto3.resource('dynamodb', region_name='eu-west-1')
     else:
