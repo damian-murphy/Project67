@@ -28,4 +28,4 @@ def test_habits(client):
 def test_show_project(client):
     response = client.get('/project/1')
     assert b'Project No.1' in response.data
-    assert b'Created: Fri, 01 Nov, 1996, 12:00 AM' in response.data
+    assert b'Created: Sun, 01 Nov, 2020, 12:00 AM' in response.data

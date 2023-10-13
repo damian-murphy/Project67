@@ -78,7 +78,7 @@ def db_init(db_type, testdb):
     return db_conn
 
 
-def setup_db(db_type, db_conn):
+def setup_db(db_type, db_conn, testdb):
     """ Configure the schema
     ::parameter db_type: either 'sqlite3' or 'dynamodb'
     ::returns True on success """
@@ -95,9 +95,15 @@ def setup_db(db_type, db_conn):
             print("R Tape Loading Error, ", err)
             return False
 
+        # Select either the prod table space or the test table space
+        if testdb:
+            ddb_tablename = schema['test_ddb_tablename']
+        else:
+            ddb_tablename = schema['ddb_tablename']
+
         # Create table unless exists, in which case this thing throws shapes
         try:
-            dtable = db_conn.create_table(TableName=schema['ddb_tablename'],
+            dtable = db_conn.create_table(TableName=ddb_tablename,
                                          KeySchema=schema['ddb_keyschema'],
                                          AttributeDefinitions=schema['ddb_attribdefs'],
                                          ProvisionedThroughput={
@@ -238,7 +244,7 @@ if __name__ == '__main__':
 
     # need the return value here, the dynamodb table object
     # for sqlite3, this will be 'true' and can be discarded
-    table = setup_db(options.type, database)
+    table = setup_db(options.type, database, options.testdb)
     if not table:
         print("Error initialising DB")
         sys.exit(2)
