@@ -102,6 +102,23 @@ def paused():
     return render_template("list.html.j2", title="Paused", projects=projects)
 
 
+@app.route("/todo")
+def todo():
+    """ Projects that are not done yet """
+    db = database.get_db()
+    if app.config["DBTYPE"] == "sqlite3":
+        projects = db.execute("""select number,idea,created,started_on,stopped_on,done
+                        from projects
+                        where done is NULL order by number""").fetchall()
+    else:
+        projects = db.scan(
+            FilterExpression=Attr('done').not_exists()
+        )
+        projects = sorted(projects['Items'], key=operator.itemgetter('number'))
+    columns = ("number", "idea", "created", "continuous")
+    return render_template("list.html.j2", title="To Do", projects=projects, columns=columns)
+
+
 @app.route("/done")
 def done():
     """ Projects that have been completed """
