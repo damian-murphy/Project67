@@ -61,6 +61,16 @@ def format_datetime(datestring, fmt='standard'):
             return datetime.datetime.strftime(datestring, "%a, %d %b, %Y, %I:%M %p")
     return "-"
 
+@app.context_processor
+def count_processor():
+    def get_counts(a_list, index_item):
+        for project in a_list:
+            Do sortug
+            # TODO
+
+        return len(b_list)
+    return dict(get_counts=get_counts)
+
 
 @app.route("/hello")
 def hello():
@@ -77,11 +87,25 @@ def home():
                             where started_on is not NULL and ( done='0' or done is NULL )
                             order by started_on""").fetchall()
     else:
+        projects = db.scan()
+        projects = sorted(projects['Items'], key=operator.itemgetter('number'))
+    return render_template("index.html.j2", title="Dashboard", projects=projects)
+
+@app.route("/active")
+def active():
+    """ list of currently active projects """
+    db = database.get_db()
+    if app.config["DBTYPE"] == "sqlite3":
+        projects = db.execute("""select number,idea,created,started_on from projects
+                            where started_on is not NULL and ( done='0' or done is NULL )
+                            order by started_on""").fetchall()
+    else:
         projects = db.scan(
             FilterExpression=Attr('started_on').exists() & ~Attr('done').exists()
         )
         projects = sorted(projects['Items'], key=operator.itemgetter('number'))
-    return render_template("index.html.j2", title="Currently Active", projects=projects)
+    columns = ("number", "idea", "created", "started_on")
+    return render_template("list.html.j2", title="Active", projects=projects, columns=columns)
 
 
 @app.route("/paused")
@@ -99,7 +123,8 @@ def paused():
                              & ~Attr('done').exists()
         )
         projects = sorted(projects['Items'], key=operator.itemgetter('stopped_on'))
-    return render_template("list.html.j2", title="Paused", projects=projects)
+    columns = ("number", "idea", "created", "stopped_on")
+    return render_template("list.html.j2", title="Paused", projects=projects, columns=columns)
 
 
 @app.route("/todo")
