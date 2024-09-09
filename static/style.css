@@ -1,6 +1,11 @@
+@font-face {
+    font-family: DepartureMono;
+    src: url(DepartureMono-Regular.woff);
+}
+
 html {
 
-    font-family: sans-serif;
+    font-family: DepartureMono;
     background: #000000;
     color: grey;
 }

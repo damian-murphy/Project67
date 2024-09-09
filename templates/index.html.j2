@@ -10,8 +10,8 @@
     <p>Somewhere to record life goals, ideas and things you'd like to do.</p>
   </div>
   <div>
-    <p>Total Projects: {{ get_counts(projects,'active') }}</p>
-    <p>Active: {{ projects|length }}</p>
+    <p>Total Projects: {{ projects|length }}</p>
+    <p>Active: {{ get_count_active(projects) }}</p>
     <p>Paused: {{ projects|length }}</p>
     <p>Done: {{ projects|length }}</p>
     <p>Todo: {{ projects|length }}</p>

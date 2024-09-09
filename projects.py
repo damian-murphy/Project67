@@ -63,13 +63,13 @@ def format_datetime(datestring, fmt='standard'):
 
 @app.context_processor
 def count_processor():
-    def get_counts(a_list, index_item):
+    def get_count_active(a_list):
+        count = 0
         for project in a_list:
-            Do sortug
-            # TODO
-
-        return len(b_list)
-    return dict(get_counts=get_counts)
+            if 'started_on' in project and 'stopped_on' not in project and done not in project:
+                count += 1
+        return count
+    return dict(get_count_active=get_count_active)
 
 
 @app.route("/hello")
